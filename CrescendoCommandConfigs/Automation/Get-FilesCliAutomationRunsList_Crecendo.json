@@ -1,0 +1,72 @@
+{
+  "$schema": "https://aka.ms/PowerShell/Crescendo/Schemas/2022-06",
+  "Commands": [
+    {
+      "Verb": "Get",
+      "Noun": "FilesCliAutomationRunsList",
+      "OriginalName": "files-cli.exe",
+      "OriginalCommandElements": [
+        "automation-runs",
+        "list",
+        "--format=json,raw",
+        "--use-pager=False"
+      ],
+      "Platform": [
+        "Windows",
+        "Linux",
+        "MacOS"
+      ],
+      "DefaultParameterSetName": "Default",
+      "SupportsShouldProcess": false,
+      "ConfirmImpact": "None",
+      "SupportsTransactions": false,
+      "NoInvocation": false,
+      "Description": "set the config",
+      "Usage": {
+        "Synopsis": "Interact with Files.com api"
+      },
+      "Parameters": [
+        {
+          "NoGap": true,
+          "OriginalName": "--automation-id=",
+          "Mandatory": true,
+          "Name": "automationid",
+          "ParameterType": "int",
+          "ValueFromPipelineByPropertyName": true,
+          "Aliases": [
+            "automation_id"
+          ],
+          "ParameterType": "int",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "ID of the associated Automation"
+        },
+        {
+          "NoGap": true,
+          "OriginalName": "--fields=",
+          "Name": "fields",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "comma seperated fields. example   path,type"
+        }
+      ],
+      "Examples": [],
+      "OriginalText": "",
+      "HelpLinks": [
+        "https://www.files.com/docs/integrations/command-line-interface-cli-app"
+      ],
+      "OutputHandlers": [
+        {
+          "ParameterSetName": "Default",
+          "HandlerType": "Function",
+          "Handler": "privFilesCli_CommonJSONtoPSobjectHandler"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,156 @@
+{
+  "$schema": "https://aka.ms/PowerShell/Crescendo/Schemas/2022-06",
+  "Commands": [
+    {
+      "Verb": "New",
+      "Noun": "FilesCliDownload",
+      "OriginalName": "files-cli.exe",
+      "OriginalCommandElements": [
+        "download",
+        "--format=json,raw",
+        "--use-pager=False"
+      ],
+      "Platform": [
+        "Windows",
+        "Linux",
+        "MacOS"
+      ],
+      "DefaultParameterSetName": "Default",
+      "SupportsShouldProcess": false,
+      "ConfirmImpact": "None",
+      "SupportsTransactions": false,
+      "NoInvocation": false,
+      "Description": "set the config",
+      "Usage": {
+        "Synopsis": "Interact with Files.com api"
+      },
+      "Parameters": [
+        {
+          "OriginalName": null,
+          "Name": "remotepath",
+          "ParameterType": "string",
+          "OriginalPosition": 0,
+          "Position": 0,
+          "ValueFromPipelineByPropertyName": true,
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Aliases": [
+            "path"
+          ],
+          "Mandatory": true,
+          "Description": "Specify the path to files.com virtual directory/file to download"
+        },
+        {
+          "OriginalName": null,
+          "Name": "localpath",
+          "ParameterType": "string",
+          "Position": 1,
+          "OriginalPosition": 1,
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Mandatory": true,
+          "Description": "Specify the path to the local folder to download to"
+        },
+        {
+          "OriginalName": null,
+          "Name": "fields",
+          "ParameterType": "string[]",
+          "Position": 2,
+          "OriginalPosition": 2,
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "Fields to include in output",
+          "ArgumentTransform": "privFilesCli_FieldsArrayToCommaSeparated",
+          "ArgumentTransformType" : "Function",
+          "DefaultValue": "attempts,error,local_path,remote_path,size_bytes,status,transferred_at,transferred_bytes",
+          "AdditionalParameterAttributes":[
+            "[ValidateSet('AllFields','attempts','error','local_path','remote_path','size_bytes','status','transferred_at','transferred_bytes')]"
+          ]
+        },
+        {
+          "NoGap": true,
+          "OriginalName": "--concurrent-connection-limit=",
+          "Name": "concurrentconnectionlimit",
+          "ParameterType": "int",
+          "OriginalPosition": 2,
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "(default 75)"
+        },
+        {
+          "NoGap": true,
+          "OriginalName": "--retry-count=",
+          "Name": "retrycount",
+          "ParameterType": "int",
+          "OriginalPosition": 2,
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "On transfer failure retry number of times. (default 2)"
+        },
+        {
+          "NoGap": true,
+          "OriginalName": "--ignore=",
+          "Name": "ignore",
+          "ParameterType": "string",
+          "OriginalPosition": 2,
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "ignore files. See https://git-scm.com/docs/gitignore#_pattern_format"
+        },
+        {
+          "NoGap": true,
+          "OriginalName": "--send-logs-to-cloud",
+          "Name": "SendLogsToCloud",
+          "ParameterType": "switch",
+          "OriginalPosition": 2,
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "Log output as external event"
+        },
+        {
+          "NoGap": true,
+          "OriginalName": "--sync",
+          "Name": "sync",
+          "ParameterType": "switch",
+          "OriginalPosition": 2,
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "Only upload files with a more recent modified date"
+        }
+      ],
+      "Examples": [
+        {
+          "Command": "Get-FilesCliChildItem -path /demo |Where-Object {$_.display_name -like \"*.csv\"} | New-FilesCliDownload -localpath C:\\temp\\localFilesDemoFolder",
+          "Description": "Lists out all objects in files.com /demo directory. Filters for files that are like '*csv' then downloads them"
+        }
+      ],
+      "OriginalText": "",
+      "HelpLinks": [
+        "https://www.files.com/docs/integrations/command-line-interface-cli-app"
+      ],
+      "OutputHandlers": [
+        {
+          "ParameterSetName": "Default",
+          "HandlerType": "Function",
+          "Handler": "privFilesCli_CommonJSONtoPSobjectHandler"
+        }
+      ]
+    }
+  ]
+}

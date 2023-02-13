@@ -1,0 +1,61 @@
+{
+    "$schema": "https://aka.ms/PowerShell/Crescendo/Schemas/2022-06",
+    "Commands": [
+        {
+            "Parameters": [
+                {
+                    "NoGap": true,
+                    "OriginalName": "--api-key=",
+                    "Name": "apikey",
+                    "ParameterType": "string",
+                    "OriginalPosition": 3,
+                    "Description": "String of API key"
+                },
+                {
+                    "NoGap": true,
+                    "OriginalName": "--debug=",
+                    "Name": "debugOutputPath",
+                    "DefaultMissingValue": "",
+                    "ParameterType": "string",
+                    "OriginalPosition": 3,
+                    "Description": "File Path for debug log"
+                },
+                {
+                    "NoGap": true,
+                    "OriginalName": "--ignore-version-check=False",
+                    "DefaultMissingValue": "--ignore-version-check=True",
+                    "Name": "CheckCliVersion",
+                    "ParameterType": "switch",
+                    "OriginalPosition": 3,
+                    "Description": "'True' or 'False' strings can be used"
+                    
+                },
+                {
+                    "NoGap": true,
+                    "OriginalName": "--output=",
+                    "Name": "output",
+                    "ParameterType": "string",
+                    "OriginalPosition": 3,
+                    "Description": "file path to save output"
+                    
+                },
+                {
+                    "NoGap": true,
+                    "OriginalName": "--profile=",
+                    "Name": "profile",
+                    "ParameterType": "string",
+                    "OriginalPosition": 3,
+                    "Description": "Specify the profile string that was previously set"
+                },
+                {
+                    "NoGap": true,
+                    "OriginalName": "--reauthentication=",
+                    "Name": "reauthentication",
+                    "ParameterType": "string",
+                    "OriginalPosition": 3,
+                    "Description": "Specify the password"
+                }
+            ]
+        }
+    ]
+}

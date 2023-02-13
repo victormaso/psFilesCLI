@@ -1,0 +1,35 @@
+{
+    "$schema": "https://aka.ms/PowerShell/Crescendo/Schemas/2022-06",
+    "Commands": [
+        {
+            "Parameters": [
+                {
+                    "OriginalName": "--end-at",
+                    "Name": "endat",
+                    "ParameterType": "datetime",
+                    "ParameterSetName": [
+                      "Default",
+                      "GlobalFlags"
+                    ],
+                    "Mandatory": false,
+                    "ArgumentTransform": "privFilesCli_DateTimeToGMTFilesFormat",
+                    "ArgumentTransformType" : "Function",
+                    "Description": "Leave blank or set to a date/time to filter later entries. use powershell datetime"
+                  },
+                  {
+                    "OriginalName": "--start-at",
+                    "Name": "startat",
+                    "ParameterType": "datetime",
+                    "ParameterSetName": [
+                      "Default",
+                      "GlobalFlags"
+                    ],
+                    "Mandatory": false,
+                    "ArgumentTransform": "privFilesCli_DateTimeToGMTFilesFormat",
+                    "ArgumentTransformType" : "Function",
+                    "Description": "Leave blank or set to a date/time to filter earlier entries. use powershell datetime"
+                  }
+            ]
+        }
+    ]
+}

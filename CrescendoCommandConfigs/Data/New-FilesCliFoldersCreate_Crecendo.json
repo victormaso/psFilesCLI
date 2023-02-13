@@ -1,0 +1,84 @@
+{
+  "$schema": "https://aka.ms/PowerShell/Crescendo/Schemas/2022-06",
+  "Commands": [
+    {
+      "Verb": "New",
+      "Noun": "FilesCliFolder",
+      "OriginalName": "files-cli.exe",
+      "OriginalCommandElements": [
+        "folders",
+        "create",
+        "--format=json,raw",
+        "--use-pager=False"
+      ],
+      "Platform": [
+        "Windows",
+        "Linux",
+        "MacOS"
+      ],
+      "DefaultParameterSetName": "Default",
+      "SupportsShouldProcess": false,
+      "ConfirmImpact": "None",
+      "SupportsTransactions": false,
+      "NoInvocation": false,
+      "Description": "set the config",
+      "Usage": {
+        "Synopsis": "Interact with Files.com api"
+      },
+      "Parameters": [
+        {
+          "NoGap": true,
+          "OriginalName": "--path=",
+          "Name": "path",
+          "ParameterType": "string",
+          "ValueFromPipelineByPropertyName": true,
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Mandatory": true,
+          "Description": "Specify the path. Include the name of the folder you want to create."
+        },
+        {
+          "OriginalName": null,
+          "Name": "fields",
+          "ParameterType": "string[]",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "Fields to include in output",
+          "ArgumentTransform": "privFilesCli_FieldsArrayToCommaSeparated",
+          "ArgumentTransformType" : "Function",
+          "DefaultValue": "display_name,created_at,type",
+          "AdditionalParameterAttributes":[
+            "[ValidateSet('AllFields','action','crc32','created_at','display_name','download_uri','is_locked','length','md5','mime_type','mkdir_parents','mtime','part','parts','path','permissions','preview','preview_id','priority_color','provided_mtime','ref','region','restart','structure','subfolders_locked?','type','with_rename')]"
+          ]
+        },
+        {
+          "NoGap": true,
+          "OriginalName": "--mkdir-parents",
+          "Name": "mkdirparents",
+          "ParameterType": "switch",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "Create parent directories if they do not exist? (default false)"
+        }
+      ],
+      "Examples": [],
+      "OriginalText": "",
+      "HelpLinks": [
+        "https://www.files.com/docs/integrations/command-line-interface-cli-app"
+      ],
+      "OutputHandlers": [
+        {
+          "ParameterSetName": "Default",
+          "HandlerType": "Function",
+          "Handler": "privFilesCli_CommonJSONtoPSobjectHandler"
+        }
+      ]
+    }
+  ]
+}

@@ -3,7 +3,7 @@
   "Commands": [
     {
       "Verb": "Set",
-      "Noun": "FilesCliconfig",
+      "Noun": "FilesCliConfig",
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
         "config",

@@ -1,7 +1,7 @@
 # Module created by Microsoft.PowerShell.Crescendo
 # Version: 1.1.0
 # Schema: https://aka.ms/PowerShell/Crescendo/Schemas/2022-06
-# Generated at: 02/13/2023 03:29:48
+# Generated at: 02/13/2023 03:43:08
 class PowerShellCustomFunctionAttribute : System.Attribute { 
     [bool]$RequiresElevation
     [string]$Source
@@ -6661,7 +6661,7 @@ https://www.files.com/docs/integrations/command-line-interface-cli-app
 }
 
 
-function Set-FilesCliconfig
+function Set-FilesCliConfig
 {
 [PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
 [CmdletBinding(ConfirmImpact='None',DefaultParameterSetName='Default')]

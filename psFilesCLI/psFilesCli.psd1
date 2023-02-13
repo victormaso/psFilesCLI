@@ -72,7 +72,7 @@ FunctionsToExport = 'Copy-FilesCliFiles', 'Get-FilesCliAutomationRunsFind',
 'Get-FilesCliHistoriesListLogins', 'Get-FilesCliIPAddressesList', 
 'Get-FilesCliUser', 'Get-FilesCliUsersList', 'New-FilesCliBehavior', 
 'New-FilesCliDownload', 'New-FilesCliFolder', 'New-FilesCliSyncPull', 
-'New-FilesCliUpload', 'Set-FilesCliconfig'
+'New-FilesCliUpload', 'Set-FilesCliConfig'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()

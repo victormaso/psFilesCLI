@@ -24,7 +24,7 @@
       "ConfirmImpact": "None",
       "SupportsTransactions": false,
       "NoInvocation": false,
-      "Description": "set the config",
+      "Description": "shows site logon history",
       "Usage": {
         "Synopsis": "Interact with Files.com api"
       },

@@ -21,7 +21,7 @@
       "ConfirmImpact": "None",
       "SupportsTransactions": false,
       "NoInvocation": false,
-      "Description": "set the config",
+      "Description": "shows a users group membership",
       "Usage": {
         "Synopsis": "Interact with Files.com api"
       },
@@ -33,6 +33,7 @@
           "ParameterType": "int",
           "OriginalPosition": 0,
           "Position": 0,
+          "Mandatory": true,
           "ValueFromPipelineByPropertyName": true,
           "Aliases": [
             "id"

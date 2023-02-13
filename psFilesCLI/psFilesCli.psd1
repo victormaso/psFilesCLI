@@ -62,17 +62,17 @@ PowerShellVersion = '5.1.0'
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = 'Copy-FilesCliFiles', 'Get-FilesCliAutomationRunsFind', 
-               'Get-FilesCliAutomationRunsList', 'Get-FilesCliAutomationsList', 
-               'Get-FilesCliBehaviors', 'Get-FilesCliBehaviorsByPath', 
-               'Get-FilesCliConfig', 'Get-FilesCliExternalEventsList', 
-               'Get-FilesCliItem', 'Get-FilesCliChildItem', 'Get-FilesCliGroupsList', 
-               'Get-FilesCliGroupMembers', 'Get-FilesCliUserGroupMembership', 
-               'Get-FilesCliHistoriesList', 'Get-FilesCliHistoriesListFile', 
-               'Get-FilesCliHistoriesListFolder', 
-               'Get-FilesCliHistoriesListLogins', 'Get-FilesCliIPAddressesList', 
-               'Get-FilesCliUsersList', 'New-FilesCliBehavior', 
-               'New-FilesCliDownload', 'New-FilesCliFolder', 'New-FilesCliSyncPull', 
-               'New-FilesCliUpload', 'Set-FilesCliconfig'
+'Get-FilesCliAutomationRunsList', 'Get-FilesCliAutomationsList', 
+'Get-FilesCliBehaviors', 'Get-FilesCliBehaviorsByPath', 
+'Get-FilesCliConfig', 'Get-FilesCliExternalEventsList', 
+'Get-FilesCliItem', 'Get-FilesCliChildItem', 'Get-FilesCliGroupsList', 
+'Get-FilesCliGroupMembers', 'Get-FilesCliUserGroupMembership', 
+'Get-FilesCliHistoriesList', 'Get-FilesCliHistoriesListFile', 
+'Get-FilesCliHistoriesListFolder', 
+'Get-FilesCliHistoriesListLogins', 'Get-FilesCliIPAddressesList', 
+'Get-FilesCliUser', 'Get-FilesCliUsersList', 'New-FilesCliBehavior', 
+'New-FilesCliDownload', 'New-FilesCliFolder', 'New-FilesCliSyncPull', 
+'New-FilesCliUpload', 'Set-FilesCliconfig'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()

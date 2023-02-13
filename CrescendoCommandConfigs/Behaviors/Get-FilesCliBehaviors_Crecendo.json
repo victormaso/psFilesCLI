@@ -21,7 +21,7 @@
       "ConfirmImpact": "None",
       "SupportsTransactions": false,
       "NoInvocation": false,
-      "Description": "set the config",
+      "Description": "List behaviors in the site",
       "Usage": {
         "Synopsis": "Interact with Files.com api"
       },

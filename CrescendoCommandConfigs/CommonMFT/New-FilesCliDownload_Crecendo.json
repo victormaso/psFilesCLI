@@ -20,7 +20,7 @@
       "ConfirmImpact": "None",
       "SupportsTransactions": false,
       "NoInvocation": false,
-      "Description": "set the config",
+      "Description": "Downloads a file from the site",
       "Usage": {
         "Synopsis": "Interact with Files.com api"
       },

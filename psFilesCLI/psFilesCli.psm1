@@ -1,7 +1,7 @@
 # Module created by Microsoft.PowerShell.Crescendo
 # Version: 1.1.0
 # Schema: https://aka.ms/PowerShell/Crescendo/Schemas/2022-06
-# Generated at: 02/13/2023 00:36:13
+# Generated at: 02/13/2023 03:29:48
 class PowerShellCustomFunctionAttribute : System.Attribute { 
     [bool]$RequiresElevation
     [string]$Source
@@ -244,7 +244,7 @@ PROCESS {
 Interact with Files.com api
 
 .DESCRIPTION
-set the config
+starts a job to copy a file within the site
 
 .PARAMETER Source
 Specify the path to files.com virtual directory/file to copy
@@ -489,7 +489,7 @@ PROCESS {
 Interact with Files.com api
 
 .DESCRIPTION
-set the config
+detail on an automation run
 
 .PARAMETER automationRunId
 Automation Run ID
@@ -724,7 +724,7 @@ PROCESS {
 Interact with Files.com api
 
 .DESCRIPTION
-set the config
+get the runs for an automation
 
 .PARAMETER automationid
 ID of the associated Automation
@@ -945,7 +945,7 @@ PROCESS {
 Interact with Files.com api
 
 .DESCRIPTION
-set the config
+lists automations
 
 .PARAMETER fields
 comma separated fields. example   path,type
@@ -1177,7 +1177,7 @@ PROCESS {
 Interact with Files.com api
 
 .DESCRIPTION
-set the config
+List behaviors in the site
 
 .PARAMETER path
 Specify behavior type
@@ -1426,7 +1426,7 @@ PROCESS {
 Interact with Files.com api
 
 .DESCRIPTION
-set the config
+list behaviours by path
 
 .PARAMETER path
 Specify the folder path
@@ -2095,7 +2095,7 @@ PROCESS {
 Interact with Files.com api
 
 .DESCRIPTION
-set the config
+get detail on a folder or file
 
 .PARAMETER path
 Specify the path
@@ -2375,7 +2375,7 @@ PROCESS {
 Interact with Files.com api
 
 .DESCRIPTION
-set the config
+lists the folders and files within a folder
 
 .PARAMETER path
 Specify the path
@@ -2621,7 +2621,7 @@ PROCESS {
 Interact with Files.com api
 
 .DESCRIPTION
-set the config
+lists groups in files.com
 
 .PARAMETER ids
 Comma-separated list of group ids to include in results.
@@ -2670,8 +2670,8 @@ function Get-FilesCliGroupMembers
 
 param(
 [Alias('id')]
-[Parameter(Position=0,ValueFromPipelineByPropertyName=$true,ParameterSetName='Default')]
-[Parameter(Position=0,ValueFromPipelineByPropertyName=$true,ParameterSetName='GlobalFlags')]
+[Parameter(Position=0,ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='Default')]
+[Parameter(Position=0,ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='GlobalFlags')]
 [int]$groupid,
 [ValidateSet('AllFields','id','group_name','admin','group_id','user_id','usernames')]
 [Parameter(Position=2,ParameterSetName='Default')]
@@ -2858,7 +2858,7 @@ PROCESS {
 Interact with Files.com api
 
 .DESCRIPTION
-set the config
+shows the UserID members of the group
 
 .PARAMETER groupid
 Group ID.  If provided, will return group_users of this group
@@ -2907,8 +2907,8 @@ function Get-FilesCliUserGroupMembership
 
 param(
 [Alias('id')]
-[Parameter(Position=0,ValueFromPipelineByPropertyName=$true,ParameterSetName='Default')]
-[Parameter(Position=0,ValueFromPipelineByPropertyName=$true,ParameterSetName='GlobalFlags')]
+[Parameter(Position=0,ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='Default')]
+[Parameter(Position=0,ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='GlobalFlags')]
 [int]$userid,
 [ValidateSet('AllFields','id','group_name','admin','group_id','user_id','usernames')]
 [Parameter(Position=2,ParameterSetName='Default')]
@@ -3095,7 +3095,7 @@ PROCESS {
 Interact with Files.com api
 
 .DESCRIPTION
-set the config
+shows a users group membership
 
 .PARAMETER userid
 User ID.  If provided, will return group_users of this user.
@@ -3381,7 +3381,7 @@ PROCESS {
 Interact with Files.com api
 
 .DESCRIPTION
-set the config
+shows site history
 
 .PARAMETER cursor
 Used for pagination.  Send a cursor value to resume an existing list from the point at which you left off.  Get a cursor from an existing list via either the X-Files-Cursor-Next header or the X-Files-Cursor-Prev header.
@@ -3696,7 +3696,7 @@ PROCESS {
 Interact with Files.com api
 
 .DESCRIPTION
-set the config
+shows history on a file
 
 .PARAMETER path
 Specify the path
@@ -4015,7 +4015,7 @@ PROCESS {
 Interact with Files.com api
 
 .DESCRIPTION
-set the config
+shows history on a folder
 
 .PARAMETER path
 Specify the path
@@ -4321,7 +4321,7 @@ PROCESS {
 Interact with Files.com api
 
 .DESCRIPTION
-set the config
+shows site logon history
 
 .PARAMETER cursor
 Used for pagination.  Send a cursor value to resume an existing list from the point at which you left off.  Get a cursor from an existing list via either the X-Files-Cursor-Next header or the X-Files-Cursor-Prev header.
@@ -4558,10 +4558,247 @@ PROCESS {
 Interact with Files.com api
 
 .DESCRIPTION
-set the config
+lists IP addresses
 
 .PARAMETER fields
 comma seperated fields. example   path,type
+
+
+.PARAMETER apikey
+String of API key
+
+
+.PARAMETER debugOutputPath
+File Path for debug log
+
+
+.PARAMETER CheckCliVersion
+'True' or 'False' strings can be used
+
+
+.PARAMETER output
+file path to save output
+
+
+.PARAMETER profile
+Specify the profile string that was previously set
+
+
+.PARAMETER reauthentication
+Specify the password
+
+
+
+.LINK
+https://www.files.com/docs/integrations/command-line-interface-cli-app
+
+#>
+}
+
+
+function Get-FilesCliUser
+{
+[PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
+[CmdletBinding(ConfirmImpact='None',DefaultParameterSetName='Default')]
+
+param(
+[Alias('userid')]
+[Parameter(Position=0,ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='Default')]
+[Parameter(Position=0,ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='GlobalFlags')]
+[int]$userid,
+[ValidateSet('AllFields','active_2fa','admin_group_ids','allowed_ips','announcements_read','api_keys_count','attachments_permission','authenticate_until','authentication_method','avatar_delete','avatar_file','avatar_url','billing_permission','bypass_inactive_disable','bypass_site_allowed_ips','change_password','change_password_confirmation','company','created_at','dav_permission','days_remaining_until_password_expire','disabled','email','externally_managed','first_login_at','ftp_permission','grant_permission','group_id','group_ids','header_text','id','imported_password_hash','language','last_active_at','last_api_use_at','last_dav_login_at','last_desktop_login_at','last_ftp_login_at','last_login_at','last_protocol_cipher','last_restapi_login_at','last_sftp_login_at','last_web_login_at','lockout_expires','name','notes','notification_daily_send_time','office_integration_enabled','password','password_confirmation','password_expire_at','password_expired','password_set_at','password_validity_days','public_keys_count','receive_admin_alerts','require_2fa','require_password_change','restapi_permission','self_managed','sftp_permission','site_admin','skip_welcome_screen','ssl_required','sso_strategy_id','subscribe_to_newsletter','time_zone','type_of_2fa','user_root','username')]
+[Parameter(Position=2,ParameterSetName='Default')]
+[Parameter(Position=2,ParameterSetName='GlobalFlags')]
+[PSDefaultValue(Value="id,name,email,disabled,group_ids,last_login_at,last_active_at,password_expired")]
+[string[]]$fields = "id,name,email,disabled,group_ids,last_login_at,last_active_at,password_expired",
+[Parameter()]
+[string]$apikey,
+[Parameter()]
+[string]$debugOutputPath,
+[Parameter()]
+[switch]$CheckCliVersion,
+[Parameter()]
+[string]$output,
+[Parameter()]
+[string]$profile,
+[Parameter()]
+[string]$reauthentication
+    )
+
+BEGIN {
+    $__PARAMETERMAP = @{
+         userid = @{
+               OriginalName = '--id='
+               OriginalPosition = '0'
+               Position = '0'
+               ParameterType = 'int'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         fields = @{
+               OriginalName = ''
+               OriginalPosition = '2'
+               Position = '2'
+               ParameterType = 'string[]'
+               ApplyToExecutable = $False
+               NoGap = $False
+               ArgumentTransform = 'privFilesCli_FieldsArrayToCommaSeparated'
+               ArgumentTransformType = 'Function'
+               }
+         apikey = @{
+               OriginalName = '--api-key='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         debugOutputPath = @{
+               OriginalName = '--debug='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         CheckCliVersion = @{
+               OriginalName = '--ignore-version-check=False'
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'switch'
+               ApplyToExecutable = $False
+               NoGap = $True
+               DefaultMissingValue = '--ignore-version-check=True'
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         output = @{
+               OriginalName = '--output='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         profile = @{
+               OriginalName = '--profile='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         reauthentication = @{
+               OriginalName = '--reauthentication='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+    }
+
+    $__outputHandlers = @{
+        Default = @{ StreamOutput = $False; Handler = 'privFilesCli_UserOutPutHandler' }
+    }
+}
+
+PROCESS {
+    $__boundParameters = $PSBoundParameters
+    $__defaultValueParameters = $PSCmdlet.MyInvocation.MyCommand.Parameters.Values.Where({$_.Attributes.Where({$_.TypeId.Name -eq "PSDefaultValueAttribute"})}).Name
+    $__defaultValueParameters.Where({ !$__boundParameters["$_"] }).ForEach({$__boundParameters["$_"] = get-variable -value $_})
+    $__commandArgs = @()
+    $MyInvocation.MyCommand.Parameters.Values.Where({$_.SwitchParameter -and $_.Name -notmatch "Debug|Whatif|Confirm|Verbose" -and ! $__boundParameters[$_.Name]}).ForEach({$__boundParameters[$_.Name] = [switch]::new($false)})
+    if ($__boundParameters["Debug"]){wait-debugger}
+    $__commandArgs += 'users'
+    $__commandArgs += 'find'
+    $__commandArgs += '--format=json,raw'
+    $__commandArgs += '--use-pager=False'
+    foreach ($paramName in $__boundParameters.Keys|
+            Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
+        $value = $__boundParameters[$paramName]
+        $param = $__PARAMETERMAP[$paramName]
+        if ($param) {
+            if ($value -is [switch]) {
+                 if ($value.IsPresent) {
+                     if ($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                 }
+                 elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
+            }
+            elseif ( $param.NoGap ) {
+                $pFmt = "{0}{1}"
+                if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                $__commandArgs += $pFmt -f $param.OriginalName, $value
+            }
+            else {
+                if($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                if($param.ArgumentTransformType -eq 'inline') {
+                   $transform = [scriptblock]::Create($param.ArgumentTransform)
+                }
+                else {
+                   $transform = $param.ArgumentTransform
+                }
+                $__commandArgs += & $transform $value
+            }
+        }
+    }
+    $__commandArgs = $__commandArgs | Where-Object {$_ -ne $null}
+    if ($__boundParameters["Debug"]){wait-debugger}
+    if ( $__boundParameters["Verbose"]) {
+         Write-Verbose -Verbose -Message "files-cli.exe"
+         $__commandArgs | Write-Verbose -Verbose
+    }
+    $__handlerInfo = $__outputHandlers[$PSCmdlet.ParameterSetName]
+    if (! $__handlerInfo ) {
+        $__handlerInfo = $__outputHandlers["Default"] # Guaranteed to be present
+    }
+    $__handler = $__handlerInfo.Handler
+    if ( $PSCmdlet.ShouldProcess("files-cli.exe $__commandArgs")) {
+    # check for the application and throw if it cannot be found
+        if ( -not (Get-Command -ErrorAction Ignore "files-cli.exe")) {
+          throw "Cannot find executable 'files-cli.exe'"
+        }
+        if ( $__handlerInfo.StreamOutput ) {
+            if ( $null -eq $__handler ) {
+                & "files-cli.exe" $__commandArgs
+            }
+            else {
+                & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError | & $__handler
+            }
+        }
+        else {
+            $result = & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError
+            & $__handler $result
+        }
+    }
+  } # end PROCESS
+
+<#
+.SYNOPSIS
+Interact with Files.com api
+
+.DESCRIPTION
+user detail by user ID
+
+.PARAMETER userid
+User ID
+
+
+.PARAMETER fields
+Fields to include in output
 
 
 .PARAMETER apikey
@@ -4788,7 +5025,7 @@ PROCESS {
 Interact with Files.com api
 
 .DESCRIPTION
-set the config
+lists the users in the site
 
 .PARAMETER ids
 Comma-separated list of user ids to include in results.
@@ -5050,7 +5287,7 @@ PROCESS {
 Interact with Files.com api
 
 .DESCRIPTION
-Create Behavior
+Create Behavior on a folder
 
 .PARAMETER path
 Specify the folder path
@@ -5391,7 +5628,7 @@ PROCESS {
 Interact with Files.com api
 
 .DESCRIPTION
-set the config
+Downloads a file from the site
 
 .PARAMETER remotepath
 Specify the path to files.com virtual directory/file to download
@@ -5670,7 +5907,7 @@ PROCESS {
 Interact with Files.com api
 
 .DESCRIPTION
-set the config
+Creates a folder in the site
 
 .PARAMETER path
 Specify the path. Include the name of the folder you want to create.
@@ -6358,7 +6595,7 @@ PROCESS {
 Interact with Files.com api
 
 .DESCRIPTION
-set the config
+Uploads a file or folder to the site
 
 .PARAMETER path
 Specify the path to the local file to upload

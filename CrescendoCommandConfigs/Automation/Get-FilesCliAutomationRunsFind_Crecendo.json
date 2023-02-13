@@ -21,7 +21,7 @@
       "ConfirmImpact": "None",
       "SupportsTransactions": false,
       "NoInvocation": false,
-      "Description": "set the config",
+      "Description": "detail on an automation run",
       "Usage": {
         "Synopsis": "Interact with Files.com api"
       },

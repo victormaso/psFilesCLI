@@ -21,7 +21,7 @@
       "ConfirmImpact": "None",
       "SupportsTransactions": false,
       "NoInvocation": false,
-      "Description": "Create Behavior",
+      "Description": "Create Behavior on a folder",
       "Usage": {
         "Synopsis": "Interact with Files.com api"
       },

@@ -1,0 +1,79 @@
+{
+  "$schema": "https://aka.ms/PowerShell/Crescendo/Schemas/2022-06",
+  "Commands": [
+    {
+      "Verb": "Get",
+      "Noun": "FilesCliUserGroupMembership",
+      "OriginalName": "files-cli.exe",
+      "OriginalCommandElements": [
+        "group-users",
+        "list",
+        "--format=json,raw",
+        "--use-pager=False"
+      ],
+      "Platform": [
+        "Windows",
+        "Linux",
+        "MacOS"
+      ],
+      "DefaultParameterSetName": "Default",
+      "SupportsShouldProcess": false,
+      "ConfirmImpact": "None",
+      "SupportsTransactions": false,
+      "NoInvocation": false,
+      "Description": "set the config",
+      "Usage": {
+        "Synopsis": "Interact with Files.com api"
+      },
+      "Parameters": [
+        {
+          "NoGap": true,
+          "OriginalName": "--user-id=",
+          "Name": "userid",
+          "ParameterType": "int",
+          "OriginalPosition": 0,
+          "Position": 0,
+          "ValueFromPipelineByPropertyName": true,
+          "Aliases": [
+            "id"
+          ],
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "User ID.  If provided, will return group_users of this user."
+        },
+        {
+          "OriginalName": null,
+          "Name": "fields",
+          "ParameterType": "string[]",
+          "Position": 2,
+          "OriginalPosition": 2,
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "Fields to include in output",
+          "ArgumentTransform": "privFilesCli_FieldsArrayToCommaSeparated",
+          "ArgumentTransformType" : "Function",
+          "DefaultValue": "id,group_name,admin,group_id",
+          "AdditionalParameterAttributes":[
+            "[ValidateSet('AllFields','id','group_name','admin','group_id','user_id','usernames')]"
+          ]
+        }
+      ],
+      "Examples": [],
+      "OriginalText": "",
+      "HelpLinks": [
+        "https://www.files.com/docs/integrations/command-line-interface-cli-app"
+      ],
+      "OutputHandlers": [
+        {
+          "ParameterSetName": "Default",
+          "HandlerType": "Function",
+          "Handler": "privFilesCli_UserOutPutHandler"
+        }
+      ]
+    }
+  ]
+}

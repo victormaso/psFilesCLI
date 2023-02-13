@@ -1,0 +1,102 @@
+{
+  "$schema": "https://aka.ms/PowerShell/Crescendo/Schemas/2022-06",
+  "Commands": [
+    {
+      "Verb": "New",
+      "Noun": "FilesCliBehavior",
+      "OriginalName": "files-cli.exe",
+      "OriginalCommandElements": [
+        "behaviors",
+        "create",
+        "--format=json,raw",
+        "--use-pager=False"
+      ],
+      "Platform": [
+        "Windows",
+        "Linux",
+        "MacOS"
+      ],
+      "DefaultParameterSetName": "Default",
+      "SupportsShouldProcess": false,
+      "ConfirmImpact": "None",
+      "SupportsTransactions": false,
+      "NoInvocation": false,
+      "Description": "Create Behavior",
+      "Usage": {
+        "Synopsis": "Interact with Files.com api"
+      },
+      "Parameters": [
+        {
+          "NoGap": true,
+          "OriginalName": "--path=",
+          "Name": "path",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Mandatory": true,
+          "Description": "Specify the folder path"
+        },
+        {
+          "NoGap": true,
+          "OriginalName": "--behavior=",
+          "Name": "behavior",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Mandatory": true,
+          "Description": "Specify behavior type"
+        },
+        {
+          "OriginalName": null,
+          "Name": "value",
+          "ParameterType": null,
+          "ArgumentTransform": "privFilesCli_BehaviorValue",
+          "ArgumentTransformType": "Function",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Mandatory": true,
+          "Description": "The value of the folder behavior. Use a PSObject it will be converted to json. Can be a integer, array, or hash depending on the type of folder behavior. See The Behavior Types section for example values for each type of behavior."
+        },
+        {
+          "OriginalName": null,
+          "Name": "fields",
+          "ParameterType": "string[]",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "Fields to include in output",
+          "ArgumentTransform": "privFilesCli_FieldsArrayToCommaSeparated",
+          "ArgumentTransformType": "Function",
+          "DefaultValue": "attachment_delete,attachment_file,attachment_url,behavior,description,id,name,path,value",
+          "AdditionalParameterAttributes": [
+            "[ValidateSet('AllFields','attachment_delete','attachment_file','attachment_url','behavior','description','id','name','path','value')]"
+          ]
+        }
+      ],
+      "Examples": [
+        {
+          "Command": "$pubkey = Get-Content 'C:\\GPG_pubkey.asc'\n\n $Behavior = @{\nbehavior = 'auto_encrypt'\n path = '/Demo/AutoEncryptFolder'\n   value = @{\n   algorithm = 'PGP/GPG'\n   suffix = '.gpg'\n   key = $pubkey\n   armor = $false\n   }\n}\n\n New-FilesCliBehavior @Behavior",
+          "Description": "Sets a PGP Encrypt behavior on a files.com folder with a public PGP key"
+    }
+  ],
+  "OriginalText": "",
+  "HelpLinks": [
+    "https://www.files.com/docs/integrations/command-line-interface-cli-app"
+  ],
+  "OutputHandlers": [
+    {
+      "ParameterSetName": "Default",
+      "HandlerType": "Function",
+      "Handler": "privFilesCli_CommonJSONtoPSobjectHandler"
+    }
+  ]
+}
+]
+}

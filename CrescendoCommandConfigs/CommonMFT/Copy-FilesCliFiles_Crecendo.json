@@ -1,0 +1,91 @@
+{
+  "$schema": "https://aka.ms/PowerShell/Crescendo/Schemas/2022-06",
+  "Commands": [
+    {
+      "Verb": "Copy",
+      "Noun": "FilesCliFiles",
+      "OriginalName": "files-cli.exe",
+      "OriginalCommandElements": [
+        "copy",
+        "--format=json,raw",
+        "--use-pager=False"
+      ],
+      "Platform": [
+        "Windows",
+        "Linux",
+        "MacOS"
+      ],
+      "DefaultParameterSetName": "Default",
+      "SupportsShouldProcess": false,
+      "ConfirmImpact": "None",
+      "SupportsTransactions": false,
+      "NoInvocation": false,
+      "Description": "set the config",
+      "Usage": {
+        "Synopsis": "Interact with Files.com api"
+      },
+      "Parameters": [
+        {
+          "OriginalName": null,
+          "Name": "Source",
+          "ParameterType": "string",
+          "OriginalPosition": 0,
+          "Position": 0,
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Aliases": [
+            "path"
+          ],
+          "Mandatory": true,
+          "Description": "Specify the path to files.com virtual directory/file to copy"
+        },
+        {
+          "OriginalName": null,
+          "Name": "Destination",
+          "ParameterType": "string",
+          "Position": 1,
+          "OriginalPosition": 1,
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Mandatory": true,
+          "Description": "Copy destination path."
+        },
+        {
+          "OriginalName": null,
+          "Name": "fields",
+          "ParameterType": "string[]",
+          "Position": 2,
+          "OriginalPosition": 2,
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "Fields to include in output",
+          "ArgumentTransform": "privFilesCli_FieldsArrayToCommaSeparated",
+          "ArgumentTransformType" : "Function"
+        }
+      ],
+      "Examples": [
+        {
+          "Command": "Get-FilesCliChildItem -path /demo |Where-Object {$_.display_name -like \"*.csv\"} | New-FilesCliDownload -localpath C:\\temp\\localFilesDemoFolder",
+          "Description": "Lists out all objects in files.com /demo directory. Filters for files that are like '*csv' then downloads them"
+        }
+      ],
+      "OriginalText": "",
+      "HelpLinks": [
+        "https://www.files.com/docs/integrations/command-line-interface-cli-app"
+      ],
+      "OutputHandlers": [
+        {
+          "ParameterSetName": "Default",
+          "HandlerType": "Function",
+          "Handler": "privFilesCli_CommonJSONtoPSobjectHandler"
+        }
+      ]
+    }
+  ]
+}

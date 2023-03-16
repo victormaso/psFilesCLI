@@ -2,12 +2,12 @@
   "$schema": "https://aka.ms/PowerShell/Crescendo/Schemas/2022-06",
   "Commands": [
     {
-      "Verb": "Find",
-      "Noun": "FilesCliItem",
+      "Verb": "Get",
+      "Noun": "FilesCliSettingsChanges",
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
-        "files",
-        "find",
+        "settings-changes",
+        "list",
         "--format=json,raw",
         "--use-pager=False"
       ],
@@ -21,28 +21,17 @@
       "ConfirmImpact": "None",
       "SupportsTransactions": false,
       "NoInvocation": false,
-      "Description": "get detail on a folder or file",
+      "Description": "lists the settings-changes in the site",
       "Usage": {
         "Synopsis": "Interact with Files.com api"
       },
       "Parameters": [
         {
-          "NoGap": true,
-          "OriginalName": "--path=",
-          "Name": "path",
-          "ParameterType": "string",
-          "ValueFromPipelineByPropertyName": true,
-          "ParameterSetName": [
-            "Default",
-            "GlobalFlags"
-          ],
-          "Mandatory": true,
-          "Description": "Specify the path"
-        },
-        {
           "OriginalName": null,
           "Name": "fields",
           "ParameterType": "string[]",
+          "Position": 2,
+          "OriginalPosition": 2,
           "ParameterSetName": [
             "Default",
             "GlobalFlags"
@@ -50,22 +39,10 @@
           "Description": "Fields to include in output",
           "ArgumentTransform": "privFilesCli_FieldsArrayToCommaSeparated",
           "ArgumentTransformType" : "Function",
-          "DefaultValue": "display_name,created_at,mtime,path,permissions,type,size",
+          "DefaultValue": "AllFields",
           "AdditionalParameterAttributes":[
-            "[ValidateSet('AllFields','action','created_at','crc32','display_name','download_uri','is_locked','length','md5','mime_type','mkdir_parents','mtime','part','parts','path','permissions','preview','preview_id','priority_color','provided_mtime','ref','region','restart','structure','subfolders_locked?','type','with_rename')]"
+            "[ValidateSet('AllFields','changes','created_at','user_id','user_is_files_support','username')]"
           ]
-        },
-        {
-          "NoGap": true,
-          "OriginalName": "--with-previews=True",
-          "Name": "withpreviews",
-          "ParameterType": "switch",
-          "DefaultMissingValue": "--with-previews=False",
-          "ParameterSetName": [
-            "Default",
-            "GlobalFlags"
-          ],
-          "Description": "Include file previews?"
         }
       ],
       "Examples": [],

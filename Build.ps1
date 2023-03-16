@@ -1,7 +1,7 @@
 
 $Scripthome = $PSScriptRoot
 
-$moduleFolder = Split-Path $Scripthome
+$moduleFolder = "$PSScriptRoot/psFilesCli"
 
 $CrecendoBuildersCompletePath = "$Scripthome/CrecendoCommandConfigsComplete"
 $CrecendoBuildersPath = "$Scripthome/CrescendoCommandConfigs"
@@ -9,10 +9,10 @@ $CrescendoBuildersPath = "$Scripthome/CrescendoBuilders"
 
 function privFilesCli_FieldsArrayToCommaSeparated {
     param([string[]]$v) 
-    if("AllFields" -in $v){
+    if ("AllFields" -in $v) {
         #All Fields will be shown
-    }else{
-    "--fields=" + ($v -join ',')
+    } else {
+        "--fields=" + ($v -join ',')
     }
 }
 
@@ -54,14 +54,20 @@ function privFilesCli_UserOutPutHandler {
 function privFilesCli_BehaviorValue {
     param($v) 
     if ($v -is [pscustomobject]) {
-        Write-Verbose "privFilesCli_BehaviorValue pscustomobject to json"
-        $formated=$v | ConvertTo-Json -Compress
+        if ($v.key) {
+            #replace newlines with \n for pgp keys
+            $v.key = (($v.key) -join "`n") + "`n"
+        }
+        $formated = $v | ConvertTo-Json
     } elseif ($v -is [hashtable]) {
-        Write-Verbose "privFilesCli_BehaviorValue hashtable to json"
-        $formated=$v | ConvertTo-Json -Compress
+        if ($v.key) {
+            #replace newlines with \n for pgp keys
+            $v.key = (($v.key) -join "`n") + "`n"
+        }
+        $formated = $v | ConvertTo-Json
     } else {
-        Write-Verbose "privFilesCli_BehaviorValue else passthru"
-        $formated=$v
+        Write-host "privFilesCli_BehaviorValue else passthru"
+        $formated = $v
     }
 
     "--value=" + ($formated)
@@ -72,7 +78,8 @@ $StartAndEndFlagsParameters = (Get-Content "$CrescendoBuildersPath/StartAndEndFl
 
 $CrecendoBuilderFiles = Get-ChildItem $CrecendoBuildersPath -Recurse -File
 
-#Get-ChildItem $CrecendoBuildersCompletePath |Remove-Item 
+
+Get-ChildItem $CrecendoBuildersCompletePath |Where-Object {$_.FullName -match 'CrecendoCommandConfigsComplete(/|\\)CrecendoComplete_'}|Remove-Item -Force
 
 $CrecendoBuilderFiles | ForEach-Object {
     $addStartAndEndFlags = $null
@@ -88,7 +95,8 @@ $CrecendoBuilderFiles | ForEach-Object {
     if ($addStartAndEndFlags) {$commandConfig.Parameters += $StartAndEndFlagsParameters}
 
 
-    Export-CrescendoCommand -command $commandConfig -fileName "$CrecendoBuildersCompletePath/$($_.Name)" -Force
+    Export-CrescendoCommand -command $commandConfig -fileName "$CrecendoBuildersCompletePath/CrecendoComplete_$($_.Name)" -Force
 }
 
 Export-CrescendoModule -ConfigurationFile @((Get-ChildItem $CrecendoBuildersCompletePath).fullname) -ModuleName "$moduleFolder/psFilesCli.psm1" -Force
+

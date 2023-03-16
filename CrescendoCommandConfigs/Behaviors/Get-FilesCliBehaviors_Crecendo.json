@@ -29,7 +29,7 @@
         {
           "NoGap": true,
           "OriginalName": "--behavior=",
-          "Name": "path",
+          "Name": "behavior",
           "ParameterType": "string",
           "ValueFromPipelineByPropertyName": true,
           "ParameterSetName": [

@@ -4,7 +4,7 @@
 RootModule = 'psFilesCli.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.1'
+ModuleVersion = '0.0.2'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -16,13 +16,13 @@ GUID = 'd491255e-3bd7-4d82-9c98-6f5459c126c9'
 Author = 'Victor Maso'
 
 # Company or vendor of this module
-CompanyName = 'Unknown'
+#CompanyName = ''
 
 # Copyright statement for this module
 Copyright = '(c) Victor Maso. All rights reserved.'
 
 # Description of the functionality provided by this module
-Description = 'A PowerShell Crescendo wrapper for files-cli.exe'
+Description = 'A PowerShell wrapper for files-cli.exe'
 
 # Minimum version of the PowerShell engine required by this module
 PowerShellVersion = '5.1.0'
@@ -62,17 +62,19 @@ PowerShellVersion = '5.1.0'
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
 FunctionsToExport = 'Copy-FilesCliFiles', 'Get-FilesCliAutomationRunsFind', 
-'Get-FilesCliAutomationRunsList', 'Get-FilesCliAutomationsList', 
-'Get-FilesCliBehaviors', 'Get-FilesCliBehaviorsByPath', 
-'Get-FilesCliConfig', 'Get-FilesCliExternalEventsList', 
-'Get-FilesCliItem', 'Get-FilesCliChildItem', 'Get-FilesCliGroupsList', 
-'Get-FilesCliGroupMembers', 'Get-FilesCliUserGroupMembership', 
-'Get-FilesCliHistoriesList', 'Get-FilesCliHistoriesListFile', 
-'Get-FilesCliHistoriesListFolder', 
-'Get-FilesCliHistoriesListLogins', 'Get-FilesCliIPAddressesList', 
-'Get-FilesCliUser', 'Get-FilesCliUsersList', 'New-FilesCliBehavior', 
-'New-FilesCliDownload', 'New-FilesCliFolder', 'New-FilesCliSyncPull', 
-'New-FilesCliUpload', 'Set-FilesCliConfig'
+               'Get-FilesCliAutomationRunsList', 'Get-FilesCliAutomationsList', 
+               'Get-FilesCliBehaviors', 'Get-FilesCliBehaviorsByPath', 
+               'Get-FilesCliConfig', 'Get-FilesCliExternalEventsList', 
+               'Find-FilesCliItem', 'Get-FilesCliChildItem', 
+               'Get-FilesCliGroupsList', 'Get-FilesCliGroupMembers', 
+               'Get-FilesCliUserGroupMembership', 'Get-FilesCliHistoriesList', 
+               'Get-FilesCliHistoriesListFile', 'Get-FilesCliHistoriesListFolder', 
+               'Get-FilesCliHistoriesListLogins', 'Get-FilesCliIPAddressesList', 
+               'Get-FilesCliRemoteServerById', 'Get-FilesCliRemoteServersList', 
+               'Get-FilesCliSettingsChanges', 'Get-FilesCliUser', 
+               'Get-FilesCliUsersList', 'New-FilesCliBehavior', 
+               'New-FilesCliDownload', 'New-FilesCliFolder', 'New-FilesCliSyncPull', 
+               'New-FilesCliUpload', 'Set-FilesCliConfig'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()

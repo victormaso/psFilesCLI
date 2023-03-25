@@ -147,14 +147,14 @@ when         : 2/12/2023 9:35:36 PM
 
 ### Set a Folder Behavior to Encrypt files with a public PGP key
 ```Powershell
-$pubkey = Get-Content "C:\temp\pgp-pubkey.asc"
+$pubkey = Get-Content "C:\temp\pgp-pubkey.asc" -raw
 $Behavior = @{
     behavior = "auto_encrypt"
     path     = "/Demo/AutoEncryptFolder"
     value    = @{
         algorithm = "PGP/GPG"
         suffix    = ".gpg"
-        key       = $pubkey
+        key       = "$pubkey"
         armor     = $false
     }
 }

@@ -156,5 +156,5 @@ $CrecendoBuilderFiles | ForEach-Object {
     Export-CrescendoCommand -command $commandConfig -fileName "$CrecendoBuildersCompletePath/CrecendoComplete_$($_.Name)" -Force
 }
 
-Export-CrescendoModule -ConfigurationFile @((Get-ChildItem $CrecendoBuildersCompletePath).fullname) -ModuleName "$moduleFolder/psFilesCli.psm1" -Force -NoClobberManifest
+Export-CrescendoModule -ConfigurationFile @((Get-ChildItem $CrecendoBuildersCompletePath).fullname) -ModuleName "$moduleFolder/psFilesCli.psm1" -Force
 

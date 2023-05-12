@@ -2,12 +2,12 @@
   "$schema": "https://aka.ms/PowerShell/Crescendo/Schemas/2022-06",
   "Commands": [
     {
-      "Verb": "Copy",
+      "Verb": "Move",
       "Noun": "FilesCliItem",
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
         "files",
-        "copy",
+        "move",
         "--format=json,raw",
         "--use-pager=False"
       ],
@@ -21,7 +21,7 @@
       "ConfirmImpact": "None",
       "SupportsTransactions": false,
       "NoInvocation": false,
-      "Description": "starts a job to copy a file within the site",
+      "Description": "starts a job to move a file within the site",
       "Usage": {
         "Synopsis": "Interact with Files.com api"
       },
@@ -69,18 +69,7 @@
         },
         {
           "NoGap": true,
-          "OriginalName": "--no-progress",
-          "Name": "NoProgress",
-          "ParameterType": "switch",
-          "ParameterSetName": [
-            "Default",
-            "GlobalFlags"
-          ],
-          "Description": "Don't display progress bars when using block flag"
-        },
-        {
-          "NoGap": true,
-          "OriginalName": "--event-log",
+          "OriginalName": "--eventlog",
           "Name": "Eventlog",
           "ParameterType": "switch",
           "ParameterSetName": [

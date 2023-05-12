@@ -4,7 +4,7 @@
 RootModule = 'psFilesCli.psm1'
 
 # Version number of this module.
-ModuleVersion = '0.0.3'
+ModuleVersion = '0.0.4'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -61,20 +61,21 @@ PowerShellVersion = '5.1.0'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'Copy-FilesCliFiles', 'Get-FilesCliAutomationRunsFind', 
+FunctionsToExport = 'Copy-FilesCliItem', 'Get-FilesCliAutomationRunsFind', 
                'Get-FilesCliAutomationRunsList', 'Get-FilesCliAutomationsList', 
                'Get-FilesCliBehaviors', 'Get-FilesCliBehaviorsByPath', 
-               'Get-FilesCliConfig', 'Get-FilesCliExternalEventsList', 
-               'Find-FilesCliItem', 'Get-FilesCliChildItem', 
-               'Get-FilesCliGroupsList', 'Get-FilesCliGroupMembers', 
-               'Get-FilesCliUserGroupMembership', 'Get-FilesCliHistoriesList', 
-               'Get-FilesCliHistoriesListFile', 'Get-FilesCliHistoriesListFolder', 
+               'Get-FilesCliChildItem', 'Get-FilesCliConfig', 
+               'Get-FilesCliExternalEventsList', 'Get-FilesCliGroupsList', 
+               'Get-FilesCliGroupMembers', 'Get-FilesCliUserGroupMembership', 
+               'Get-FilesCliHistoriesList', 'Get-FilesCliHistoriesListFile', 
+               'Get-FilesCliHistoriesListFolder', 
                'Get-FilesCliHistoriesListLogins', 'Get-FilesCliIPAddressesList', 
-               'Get-FilesCliRemoteServerById', 'Get-FilesCliRemoteServersList', 
-               'Get-FilesCliSettingsChanges', 'Get-FilesCliUser', 
-               'Get-FilesCliUsersList', 'New-FilesCliBehavior', 
-               'New-FilesCliDownload', 'New-FilesCliFolder', 'New-FilesCliSyncPull', 
-               'New-FilesCliUpload', 'Set-FilesCliConfig'
+               'Get-FilesCliItem', 'Get-FilesCliRemoteServerById', 
+               'Get-FilesCliRemoteServersList', 'Get-FilesCliSettingsChanges', 
+               'Get-FilesCliUser', 'Get-FilesCliUsersList', 'Move-FilesCliItem', 
+               'New-FilesCliBehavior', 'New-FilesCliDownload', 'New-FilesCliFolder', 
+               'New-FilesCliSyncPull', 'New-FilesCliUpload', 'Remove-FilesCliItem', 
+               'Set-FilesCliConfig'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()

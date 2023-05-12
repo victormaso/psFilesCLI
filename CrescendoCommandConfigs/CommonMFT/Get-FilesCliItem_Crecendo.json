@@ -2,7 +2,7 @@
   "$schema": "https://aka.ms/PowerShell/Crescendo/Schemas/2022-06",
   "Commands": [
     {
-      "Verb": "Find",
+      "Verb": "Get",
       "Noun": "FilesCliItem",
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
@@ -27,8 +27,9 @@
       },
       "Parameters": [
         {
-          "NoGap": true,
-          "OriginalName": "--path=",
+          "OriginalName": null,
+          "OriginalPosition": 0,
+          "Position": 0,
           "Name": "path",
           "ParameterType": "string",
           "ValueFromPipelineByPropertyName": true,

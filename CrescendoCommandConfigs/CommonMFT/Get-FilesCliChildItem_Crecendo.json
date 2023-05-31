@@ -27,8 +27,9 @@
       },
       "Parameters": [
         {
-          "NoGap": true,
-          "OriginalName": "--path=",
+          "OriginalName": null,
+          "OriginalPosition": 0,
+          "Position": 0,
           "Name": "path",
           "ParameterType": "string",
           "ValueFromPipelineByPropertyName": true,

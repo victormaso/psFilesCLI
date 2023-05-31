@@ -1,7 +1,7 @@
 # Module created by Microsoft.PowerShell.Crescendo
 # Version: 1.1.0
 # Schema: https://aka.ms/PowerShell/Crescendo/Schemas/2022-06
-# Generated at: 05/11/2023 22:16:09
+# Generated at: 05/30/2023 17:51:32
 class PowerShellCustomFunctionAttribute : System.Attribute { 
     [bool]$RequiresElevation
     [string]$Source
@@ -1530,8 +1530,8 @@ function Get-FilesCliChildItem
 [CmdletBinding(ConfirmImpact='None',DefaultParameterSetName='Default')]
 
 param(
-[Parameter(ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='Default')]
-[Parameter(ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='GlobalFlags')]
+[Parameter(Position=0,ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='Default')]
+[Parameter(Position=0,ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='GlobalFlags')]
 [string]$path,
 [Parameter(ParameterSetName='Default')]
 [Parameter(ParameterSetName='GlobalFlags')]
@@ -1564,12 +1564,12 @@ param(
 BEGIN {
     $__PARAMETERMAP = @{
          path = @{
-               OriginalName = '--path='
+               OriginalName = ''
                OriginalPosition = '0'
-               Position = '2147483647'
+               Position = '0'
                ParameterType = 'string'
                ApplyToExecutable = $False
-               NoGap = $True
+               NoGap = $False
                ArgumentTransform = '$args'
                ArgumentTransformType = 'inline'
                }

@@ -101,7 +101,7 @@
           ],
           "Description": "Fields to include in output",
           "ArgumentTransform": "privFilesCli_FieldsArrayToCommaSeparated",
-          "ArgumentTransformType" : "Function"
+          "ArgumentTransformType": "Function"
         }
       ],
       "Examples": [

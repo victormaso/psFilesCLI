@@ -1,7 +1,7 @@
 # Module created by Microsoft.PowerShell.Crescendo
 # Version: 1.1.0
 # Schema: https://aka.ms/PowerShell/Crescendo/Schemas/2022-06
-# Generated at: 05/30/2023 17:51:32
+# Generated at: 06/13/2023 16:51:56
 class PowerShellCustomFunctionAttribute : System.Attribute { 
     [bool]$RequiresElevation
     [string]$Source
@@ -1535,6 +1535,12 @@ param(
 [string]$path,
 [Parameter(ParameterSetName='Default')]
 [Parameter(ParameterSetName='GlobalFlags')]
+[switch]$Recursive,
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[switch]$OnlyFolders,
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
 [int]$ConcurrentDirectoryListLimit,
 [Parameter(ParameterSetName='Default')]
 [Parameter(ParameterSetName='GlobalFlags')]
@@ -1542,8 +1548,8 @@ param(
 [ValidateSet('AllFields','action','created_at','crc32','display_name','download_uri','is_locked','length','md5','mime_type','mkdir_parents','mtime','part','parts','path','permissions','preview','preview_id','priority_color','provided_mtime','ref','region','restart','structure','subfolders_locked?','type','with_rename')]
 [Parameter(ParameterSetName='Default')]
 [Parameter(ParameterSetName='GlobalFlags')]
-[PSDefaultValue(Value="display_name,mtime,path,permissions,type,size")]
-[string[]]$fields = "display_name,mtime,path,permissions,type,size",
+[PSDefaultValue(Value="display_name,path,permissions,type")]
+[string[]]$fields = "display_name,path,permissions,type",
 [Parameter(ParameterSetName='Default')]
 [Parameter(ParameterSetName='GlobalFlags')]
 [switch]$withpreviews,
@@ -1570,6 +1576,26 @@ BEGIN {
                ParameterType = 'string'
                ApplyToExecutable = $False
                NoGap = $False
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         Recursive = @{
+               OriginalName = '--recursive=True'
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'switch'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         OnlyFolders = @{
+               OriginalName = '--only-folders=True'
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'switch'
+               ApplyToExecutable = $False
+               NoGap = $True
                ArgumentTransform = '$args'
                ArgumentTransformType = 'inline'
                }
@@ -1762,6 +1788,14 @@ lists the folders and files within a folder
 
 .PARAMETER path
 Specify the path
+
+
+.PARAMETER Recursive
+list folders/files recursively.
+
+
+.PARAMETER OnlyFolders
+only return folders and not files
 
 
 .PARAMETER ConcurrentDirectoryListLimit
@@ -7899,6 +7933,234 @@ If true, will recursively delete files in folders.  Otherwise, will error on non
 
 .PARAMETER fields
 Fields to include in output
+
+
+.PARAMETER apikey
+String of API key
+
+
+.PARAMETER debugOutputPath
+File Path for debug log
+
+
+.PARAMETER CheckCliVersion
+'True' or 'False' strings can be used
+
+
+.PARAMETER output
+file path to save output
+
+
+.PARAMETER profile
+Specify the profile string that was previously set
+
+
+.PARAMETER reauthentication
+Specify the password
+
+
+
+.LINK
+https://www.files.com/docs/integrations/command-line-interface-cli-app
+
+#>
+}
+
+
+function Set-FilesCliConfig
+{
+[PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
+[CmdletBinding(ConfirmImpact='None',DefaultParameterSetName='Default')]
+
+param(
+[Parameter(Mandatory=$true,ParameterSetName='Default')]
+[string]$subdomain,
+[Parameter(Mandatory=$true,ParameterSetName='Default')]
+[string]$username,
+[Parameter()]
+[string]$apikey,
+[Parameter()]
+[string]$debugOutputPath,
+[Parameter()]
+[switch]$CheckCliVersion,
+[Parameter()]
+[string]$output,
+[Parameter()]
+[string]$profile,
+[Parameter()]
+[string]$reauthentication
+    )
+
+BEGIN {
+    $__PARAMETERMAP = @{
+         subdomain = @{
+               OriginalName = '--subdomain'
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $False
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         username = @{
+               OriginalName = '--username'
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $False
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         apikey = @{
+               OriginalName = '--api-key='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         debugOutputPath = @{
+               OriginalName = '--debug='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         CheckCliVersion = @{
+               OriginalName = '--ignore-version-check=False'
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'switch'
+               ApplyToExecutable = $False
+               NoGap = $True
+               DefaultMissingValue = '--ignore-version-check=True'
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         output = @{
+               OriginalName = '--output='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         profile = @{
+               OriginalName = '--profile='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         reauthentication = @{
+               OriginalName = '--reauthentication='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+    }
+
+    $__outputHandlers = @{ Default = @{ StreamOutput = $true; Handler = { $input; Pop-CrescendoNativeError -EmitAsError } } }
+}
+
+PROCESS {
+    $__boundParameters = $PSBoundParameters
+    $__defaultValueParameters = $PSCmdlet.MyInvocation.MyCommand.Parameters.Values.Where({$_.Attributes.Where({$_.TypeId.Name -eq "PSDefaultValueAttribute"})}).Name
+    $__defaultValueParameters.Where({ !$__boundParameters["$_"] }).ForEach({$__boundParameters["$_"] = get-variable -value $_})
+    $__commandArgs = @()
+    $MyInvocation.MyCommand.Parameters.Values.Where({$_.SwitchParameter -and $_.Name -notmatch "Debug|Whatif|Confirm|Verbose" -and ! $__boundParameters[$_.Name]}).ForEach({$__boundParameters[$_.Name] = [switch]::new($false)})
+    if ($__boundParameters["Debug"]){wait-debugger}
+    $__commandArgs += 'config'
+    $__commandArgs += 'reset'
+    foreach ($paramName in $__boundParameters.Keys|
+            Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
+        $value = $__boundParameters[$paramName]
+        $param = $__PARAMETERMAP[$paramName]
+        if ($param) {
+            if ($value -is [switch]) {
+                 if ($value.IsPresent) {
+                     if ($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                 }
+                 elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
+            }
+            elseif ( $param.NoGap ) {
+                $pFmt = "{0}{1}"
+                if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                $__commandArgs += $pFmt -f $param.OriginalName, $value
+            }
+            else {
+                if($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                if($param.ArgumentTransformType -eq 'inline') {
+                   $transform = [scriptblock]::Create($param.ArgumentTransform)
+                }
+                else {
+                   $transform = $param.ArgumentTransform
+                }
+                $__commandArgs += & $transform $value
+            }
+        }
+    }
+    $__commandArgs = $__commandArgs | Where-Object {$_ -ne $null}
+    if ($__boundParameters["Debug"]){wait-debugger}
+    if ( $__boundParameters["Verbose"]) {
+         Write-Verbose -Verbose -Message "files-cli.exe"
+         $__commandArgs | Write-Verbose -Verbose
+    }
+    $__handlerInfo = $__outputHandlers[$PSCmdlet.ParameterSetName]
+    if (! $__handlerInfo ) {
+        $__handlerInfo = $__outputHandlers["Default"] # Guaranteed to be present
+    }
+    $__handler = $__handlerInfo.Handler
+    if ( $PSCmdlet.ShouldProcess("files-cli.exe $__commandArgs")) {
+    # check for the application and throw if it cannot be found
+        if ( -not (Get-Command -ErrorAction Ignore "files-cli.exe")) {
+          throw "Cannot find executable 'files-cli.exe'"
+        }
+        if ( $__handlerInfo.StreamOutput ) {
+            if ( $null -eq $__handler ) {
+                & "files-cli.exe" $__commandArgs
+            }
+            else {
+                & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError | & $__handler
+            }
+        }
+        else {
+            $result = & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError
+            & $__handler $result
+        }
+    }
+  } # end PROCESS
+
+<#
+.SYNOPSIS
+Interact with Files.com api
+
+.DESCRIPTION
+set the config
+
+.PARAMETER subdomain
+Specify the name of subdomain
+
+
+.PARAMETER username
+Specify the name of user
 
 
 .PARAMETER apikey

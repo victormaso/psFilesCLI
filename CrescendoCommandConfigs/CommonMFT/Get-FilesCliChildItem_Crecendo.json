@@ -42,6 +42,28 @@
         },
         {
           "NoGap": true,
+          "OriginalName": "--recursive=True",
+          "Name": "Recursive",
+          "ParameterType": "switch",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "list folders/files recursively."
+        },
+        {
+          "NoGap": true,
+          "OriginalName": "--only-folders=True",
+          "Name": "OnlyFolders",
+          "ParameterType": "switch",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "only return folders and not files"
+        },
+        {
+          "NoGap": true,
           "OriginalName": "--concurrent-directory-list-limit=",
           "Name": "ConcurrentDirectoryListLimit",
           "ParameterType": "int",
@@ -73,7 +95,7 @@
           "Description": "Fields to include in output",
           "ArgumentTransform": "privFilesCli_FieldsArrayToCommaSeparated",
           "ArgumentTransformType" : "Function",
-          "DefaultValue": "display_name,mtime,path,permissions,type,size",
+          "DefaultValue": "display_name,path,permissions,type",
           "AdditionalParameterAttributes":[
             "[ValidateSet('AllFields','action','created_at','crc32','display_name','download_uri','is_locked','length','md5','mime_type','mkdir_parents','mtime','part','parts','path','permissions','preview','preview_id','priority_color','provided_mtime','ref','region','restart','structure','subfolders_locked?','type','with_rename')]"
           ]

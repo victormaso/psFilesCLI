@@ -95,9 +95,9 @@
           "Description": "Fields to include in output",
           "ArgumentTransform": "privFilesCli_FieldsArrayToCommaSeparated",
           "ArgumentTransformType" : "Function",
-          "DefaultValue": "display_name,path,permissions,type",
+          "DefaultValue": "display_name,path,size,permissions,type",
           "AdditionalParameterAttributes":[
-            "[ValidateSet('AllFields','action','created_at','crc32','display_name','download_uri','is_locked','length','md5','mime_type','mkdir_parents','mtime','part','parts','path','permissions','preview','preview_id','priority_color','provided_mtime','ref','region','restart','structure','subfolders_locked?','type','with_rename')]"
+            "[ValidateSet('AllFields','action','created_at','crc32','display_name','download_uri','is_locked','length','md5','mime_type','mkdir_parents','mtime','part','parts','path','permissions','preview','preview_id','priority_color','provided_mtime','ref','region','restart','size','structure','subfolders_locked?','type','with_rename')]"
           ]
         },
         {

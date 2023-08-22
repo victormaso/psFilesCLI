@@ -18,7 +18,7 @@ function privFilesCli_FieldsArrayToCommaSeparated {
 
 function privFilesCli_DateTimeToGMTFilesFormat {
     param([datetime]$v) 
-    Get-Date -AsUTC $v -UFormat %Y-%m-%dT%H:%M:%SZ
+    Get-Date $v -UFormat "%Y-%m-%dT%H:%M:%S%Z:00"
 }
 
 function privFilesCli_CommonJSONtoPSobjectHandler {

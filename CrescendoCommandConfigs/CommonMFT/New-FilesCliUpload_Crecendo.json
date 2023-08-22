@@ -38,6 +38,7 @@
           "OriginalPosition": 0,
           "Aliases": [
             "source-path",
+            "localpath",
             "FullName"
           ],
           "Mandatory": true,
@@ -60,8 +61,6 @@
           "OriginalName": null,
           "Name": "fields",
           "ParameterType": "string[]",
-          "Position": 2,
-          "OriginalPosition": 2,
           "ParameterSetName": [
             "Default",
             "GlobalFlags"
@@ -69,9 +68,9 @@
           "Description": "Fields to include in output",
           "ArgumentTransform": "privFilesCli_FieldsArrayToCommaSeparated",
           "ArgumentTransformType" : "Function",
-          "DefaultValue": "attempts,error,local_path,remote_path,size_bytes,status,transferred_at,transferred_bytes",
+          "DefaultValue": "attempts,error,local_path,remote_path,size_bytes,status,started_at,transferred_bytes",
           "AdditionalParameterAttributes":[
-            "[ValidateSet('AllFields','attempts','error','local_path','remote_path','size_bytes','status','transferred_at','transferred_bytes')]"
+            "[ValidateSet('AllFields','action','attempts','completed_at','crc32','created_at','display_name','download_uri','error','is_locked','length','local_path','md5','mime_type','mkdir_parents','mtime','part','parts','path','permissions','preview','preview_id','priority_color','provided_mtime','ref','region','remote_path','restart','size','size_bytes','started_at','status','structure','subfolders_locked?','transferred_bytes','type','with_rename')]"
           ]
         },
         {
@@ -79,7 +78,6 @@
           "OriginalName": "--concurrent-connection-limit=",
           "Name": "concurrentconnectionlimit",
           "ParameterType": "int",
-          "OriginalPosition": 2,
           "ParameterSetName": [
             "Default",
             "GlobalFlags"
@@ -91,7 +89,6 @@
           "OriginalName": "--retry-count=",
           "Name": "retrycount",
           "ParameterType": "int",
-          "OriginalPosition": 2,
           "ParameterSetName": [
             "Default",
             "GlobalFlags"
@@ -103,7 +100,6 @@
           "OriginalName": "--ignore=",
           "Name": "ignore",
           "ParameterType": "string",
-          "OriginalPosition": 2,
           "ParameterSetName": [
             "Default",
             "GlobalFlags"
@@ -115,7 +111,6 @@
           "OriginalName": "--send-logs-to-cloud",
           "Name": "SendLogsToCloud",
           "ParameterType": "switch",
-          "OriginalPosition": 2,
           "ParameterSetName": [
             "Default",
             "GlobalFlags"
@@ -127,7 +122,6 @@
           "OriginalName": "--sync",
           "Name": "sync",
           "ParameterType": "switch",
-          "OriginalPosition": 2,
           "ParameterSetName": [
             "Default",
             "GlobalFlags"

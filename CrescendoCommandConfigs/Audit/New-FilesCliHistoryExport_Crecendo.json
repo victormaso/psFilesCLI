@@ -1,0 +1,269 @@
+{
+  "$schema": "https://aka.ms/PowerShell/Crescendo/Schemas/2022-06",
+  "AdditionalCrescendoBuilders":[
+    "StartAndEndFlags"
+  ],
+  "Commands": [
+    {
+      "Verb": "New",
+      "Noun": "FilesCliHistoryExport",
+      "OriginalName": "files-cli.exe",
+      "OriginalCommandElements": [
+        "history-exports",
+        "create",
+        "--format=json,raw",
+        "--use-pager=False"
+      ],
+      "Platform": [
+        "Windows",
+        "Linux",
+        "MacOS"
+      ],
+      "DefaultParameterSetName": "Default",
+      "SupportsShouldProcess": false,
+      "ConfirmImpact": "None",
+      "SupportsTransactions": false,
+      "NoInvocation": false,
+      "Description": "Create History Export",
+      "Usage": {
+        "Synopsis": "Interact with Files.com api"
+      },
+      "Parameters": [
+        {
+          "OriginalName": "--query-action",
+          "Name": "QueryAction",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "Filter results by this this action type",
+          "AdditionalParameterAttributes":[
+            "[ValidateSet('create', 'read', 'update', 'destroy', 'move', 'login', 'failedlogin', 'copy', 'user_create', 'user_update', 'user_destroy', 'group_create', 'group_update', 'group_destroy', 'permission_create', 'permission_destroy', 'api_key_create', 'api_key_update', 'api_key_destroy')]"
+          ]
+        },
+        {
+          "OriginalName": "--query-destination",
+          "Name": "QueryDestination",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "Return results that are file moves with this path as destination."
+        },
+        {
+          "OriginalName": "--query-failure-type",
+          "Name": "QueryFailureType",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "Filter results by this this action type",
+          "AdditionalParameterAttributes":[
+            "[ValidateSet('expired_trial', 'account_overdue', 'locked_out', 'ip_mismatch', 'password_mismatch', 'site_mismatch', 'username_not_found', 'none', 'no_ftp_permission', 'no_web_permission', 'no_directory', 'errno_enoent', 'no_sftp_permission', 'no_dav_permission', 'no_restapi_permission', 'key_mismatch', 'region_mismatch', 'expired_access', 'desktop_ip_mismatch', 'desktop_api_key_not_used_quickly_enough', 'disabled', 'country_mismatch')]"
+          ]
+        },
+        {
+          "OriginalName": "--query-file-id",
+          "Name": "QueryFileID",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "Return results that are file actions related to the file indicated by this File ID"
+        },
+        {
+          "OriginalName": "--query-folder",
+          "Name": "QueryFolder",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "Return results that are file actions related to files or folders inside this folder path."
+        },
+        {
+          "OriginalName": "--query-interface",
+          "Name": "QueryInterface",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "Filter results by this this interface type",
+          "AdditionalParameterAttributes":[
+            "[ValidateSet('web', 'ftp', 'robot', 'jsapi', 'webdesktopapi', 'sftp', 'dav', 'desktop', 'restapi', 'scim', 'office', 'mobile', 'as2', 'inbound_email', 'remote')]"
+          ]
+        },
+        {
+          "OriginalName": "--query-ip",
+          "Name": "QueryIP",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "Filter results by this IP address."
+        },
+        {
+          "OriginalName": "--query-parent-id",
+          "Name": "QueryParentID",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "Return results that are file actions inside the parent folder specified by this folder ID"
+        },
+        {
+          "OriginalName": "--query-path",
+          "Name": "QueryPath",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "Return results that are file actions related to this path."
+        },
+        {
+          "OriginalName": "--query-src",
+          "Name": "QuerySrc",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "Return results that are file moves originating from this path."
+        },
+        {
+          "OriginalName": "--query-target-id",
+          "Name": "QueryTargetID",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "If searching for Histories about specific objects (such as Users, or API Keys), this paremeter restricts results to objects that match this ID."
+        },
+        {
+          "OriginalName": "--query-target-name",
+          "Name": "QueryTargetName",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "If searching for Histories about Users, Groups or other objects with names, this parameter restricts results to objects with this name/username."
+        },
+        {
+          "OriginalName": "--query-target-permission",
+          "Name": "QueryTargetPermission",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "If searching for Histories about Permisisons, this parameter restricts results to permissions of this level."
+        },
+        {
+          "OriginalName": "--query-target-permission-set",
+          "Name": "QueryTargetPermissionSet",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "If searching for Histories about API keys, this parameter restricts results to API keys with this permission set."
+        },
+        {
+          "OriginalName": "--query-target-platform",
+          "Name": "QueryTargetPlatform",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "If searching for Histories about API keys, this parameter restricts results to API keys associated with this platform."
+        },
+        {
+          "OriginalName": "--query-target-user-id",
+          "Name": "QueryTargetUserID",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "If searching for Histories about API keys, this parameter restricts results to API keys created by/for this user ID."
+        },
+        {
+          "OriginalName": "--query-target-username",
+          "Name": "QueryTargetUsername",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "If searching for Histories about API keys, this parameter restricts results to API keys created by/for this username."
+        },
+        {
+          "OriginalName": "--query-user-id",
+          "Name": "QueryUserID",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "Return results that are actions performed by the user indiciated by this User ID"
+        },
+        {
+          "OriginalName": "--user-id",
+          "Name": "UserID",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "User ID.  Provide a value of 0 to operate the current session's user."
+        },
+        {
+          "NoGap": true,
+          "OriginalName": "--fields=",
+          "Name": "fields",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "comma seperated fields"
+        },
+       
+        {
+          "NoGap": true,
+          "OriginalName": "--filter=",
+          "Name": "filter",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "If specified, will filter folders/files list by this string.  Wildcards of * and '?' are acceptable here."
+        }
+      ],
+      "Examples": [],
+      "OriginalText": "",
+      "HelpLinks": [
+        "https://www.files.com/docs/integrations/command-line-interface-cli-app"
+      ],
+      "OutputHandlers": [
+        {
+          "ParameterSetName": "Default",
+          "HandlerType": "Function",
+          "Handler": "privFilesCli_CommonJSONtoPSobjectHandler"
+        }
+      ]
+    }
+  ]
+}

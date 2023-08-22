@@ -3,12 +3,13 @@
   "Commands": [
     {
       "Verb": "Get",
-      "Noun": "FilesCliItem",
+      "Noun": "FilesCliHistoryExportResults",
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
-        "files",
-        "find",
+        "history-export-results",
+        "list",
         "--format=json,raw",
+        "--per-page=10000",
         "--use-pager=False"
       ],
       "Platform": [
@@ -21,28 +22,26 @@
       "ConfirmImpact": "None",
       "SupportsTransactions": false,
       "NoInvocation": false,
-      "Description": "get detail on a folder or file",
+      "Description": "List History Export Results",
       "Usage": {
         "Synopsis": "Interact with Files.com api"
       },
       "Parameters": [
         {
-          "OriginalName": null,
-          "OriginalPosition": 0,
-          "Position": 0,
-          "Name": "path",
+          "NoGap": true,
+          "OriginalName": "--history-export-id=",
+          "Name": "HistoryExportID",
           "ParameterType": "string",
-          "ValueFromPipelineByPropertyName": true,
           "ParameterSetName": [
             "Default",
             "GlobalFlags"
           ],
-          "Mandatory": true,
-          "Description": "Specify the path"
+          "Mandatory": false,
+          "Description": "ID of the associated history export."
         },
         {
           "OriginalName": null,
-          "Name": "fields",
+          "Name": "Fields",
           "ParameterType": "string[]",
           "ParameterSetName": [
             "Default",
@@ -50,24 +49,9 @@
           ],
           "Description": "Fields to include in output",
           "ArgumentTransform": "privFilesCli_FieldsArrayToCommaSeparated",
-          "ArgumentTransformType" : "Function",
-          "DefaultValue": "display_name,created_at,mtime,path,permissions,type,size",
-          "AdditionalParameterAttributes":[
-            "[ValidateSet('AllFields','action','created_at','crc32','display_name','download_uri','is_locked','length','md5','mime_type','mkdir_parents','mtime','part','parts','path','permissions','preview','preview_id','priority_color','provided_mtime','ref','region','restart','size','structure','subfolders_locked?','type','with_rename')]"
-          ]
-        },
-        {
-          "NoGap": true,
-          "OriginalName": "--with-previews=True",
-          "Name": "withpreviews",
-          "ParameterType": "switch",
-          "DefaultMissingValue": "--with-previews=False",
-          "ParameterSetName": [
-            "Default",
-            "GlobalFlags"
-          ],
-          "Description": "Include file previews?"
+          "ArgumentTransformType" : "Function"
         }
+
       ],
       "Examples": [],
       "OriginalText": "",

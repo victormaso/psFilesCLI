@@ -1,31 +1,31 @@
 @{
 
-# Script module or binary module file associated with this manifest.
-RootModule = 'psFilesCli.psm1'
-
-# Version number of this module.
-ModuleVersion = '0.1.1'
-
-# Supported PSEditions
-# CompatiblePSEditions = @()
-
-# ID used to uniquely identify this module
-GUID = 'd491255e-3bd7-4d82-9c98-6f5459c126c9'
-
-# Author of this module
-Author = 'Victor Maso'
-
-# Company or vendor of this module
-#CompanyName = ''
-
-# Copyright statement for this module
-Copyright = '(c) Victor Maso. All rights reserved.'
-
-# Description of the functionality provided by this module
-Description = 'A PowerShell wrapper for files-cli.exe'
-
-# Minimum version of the PowerShell engine required by this module
-PowerShellVersion = '5.1.0'
+    # Script module or binary module file associated with this manifest.
+    RootModule = 'psFilesCli.psm1'
+    
+    # Version number of this module.
+    ModuleVersion = '0.1.2'
+    
+    # Supported PSEditions
+    # CompatiblePSEditions = @()
+    
+    # ID used to uniquely identify this module
+    GUID = 'd491255e-3bd7-4d82-9c98-6f5459c126c9'
+    
+    # Author of this module
+    Author = 'Victor Maso'
+    
+    # Company or vendor of this module
+    #CompanyName = ''
+    
+    # Copyright statement for this module
+    Copyright = '(c) Victor Maso. All rights reserved.'
+    
+    # Description of the functionality provided by this module
+    Description = 'A PowerShell wrapper for files-cli.exe'
+    
+    # Minimum version of the PowerShell engine required by this module
+    PowerShellVersion = '5.1.0'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
@@ -61,21 +61,30 @@ PowerShellVersion = '5.1.0'
 # NestedModules = @()
 
 # Functions to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no functions to export.
-FunctionsToExport = 'Copy-FilesCliItem', 'Get-FilesCliAutomationRunsFind', 
+FunctionsToExport = 'Copy-FilesCliItem', 'Get-FilesCliApiKeysFind', 
+               'Get-FilesCliApiKeysList', 'Get-FilesCliApiRequestLogs', 
+               'Get-FilesCliAutomationLogs', 'Get-FilesCliAutomationRunsFind', 
                'Get-FilesCliAutomationRunsList', 'Get-FilesCliAutomationsList', 
                'Get-FilesCliBehaviors', 'Get-FilesCliBehaviorsByPath', 
                'Get-FilesCliChildItem', 'Get-FilesCliConfig', 
-               'Get-FilesCliExternalEventsList', 'Get-FilesCliGroupsList', 
+               'Get-FilesCliEmailIncomingMessages', 'Get-FilesCliEmailLogs', 
+               'Get-FilesCliExternalEventsList', 'Get-FilesCliFileMigrationLogs', 
+               'Get-FilesCliFtpActionLogs', 'Get-FilesCliGroupsList', 
                'Get-FilesCliGroupMembers', 'Get-FilesCliUserGroupMembership', 
                'Get-FilesCliHistoriesList', 'Get-FilesCliHistoriesListFile', 
                'Get-FilesCliHistoriesListFolder', 
-               'Get-FilesCliHistoriesListLogins', 'Get-FilesCliIPAddressesList', 
-               'Get-FilesCliItem', 'Get-FilesCliRemoteServerById', 
+               'Get-FilesCliHistoriesListLogins', 'Get-FilesCliHistoryExport', 
+               'Get-FilesCliHistoryExportResults', 'Get-FilesCliIPAddressesList', 
+               'Get-FilesCliItem', 'Get-FilesCliNotifications', 
+               'Get-FilesCliPermissionList', 'Get-FilesCliRemoteServerById', 
                'Get-FilesCliRemoteServersList', 'Get-FilesCliSettingsChanges', 
-               'Get-FilesCliUser', 'Get-FilesCliUsersList', 'Move-FilesCliItem', 
-               'New-FilesCliBehavior', 'New-FilesCliDownload', 'New-FilesCliFolder', 
+               'Get-FilesCliSftpActionLogs', 'Get-FilesCliSyncLogs', 
+               'Get-FilesCliUsageDailySnapshots', 'Get-FilesCliUser', 
+               'Get-FilesCliUserCipherUses', 'Get-FilesCliUsersList', 
+               'Move-FilesCliItem', 'New-FilesCliBehavior', 'New-FilesCliDownload', 
+               'New-FilesCliFolder', 'New-FilesCliHistoryExport', 
                'New-FilesCliSyncPull', 'New-FilesCliUpload', 'Remove-FilesCliItem', 
-               'Set-FilesCliConfig'
+               'Set-FilesCliConfig', 'Set-FilesCliConfig'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()
@@ -139,4 +148,3 @@ PrivateData = @{
 # DefaultCommandPrefix = ''
 
 }
-

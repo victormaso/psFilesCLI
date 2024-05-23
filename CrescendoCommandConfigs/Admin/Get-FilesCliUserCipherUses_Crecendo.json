@@ -1,0 +1,59 @@
+{
+  "$schema": "https://aka.ms/PowerShell/Crescendo/Schemas/2022-06",
+  "Commands": [
+    {
+      "Verb": "Get",
+      "Noun": "FilesCliUserCipherUses",
+      "OriginalName": "files-cli.exe",
+      "OriginalCommandElements": [
+        "user-cipher-uses",
+        "list",
+        "--format=json,raw",
+        "--use-pager=False"
+      ],
+      "Platform": [
+        "Windows",
+        "Linux",
+        "MacOS"
+      ],
+      "DefaultParameterSetName": "Default",
+      "SupportsShouldProcess": false,
+      "ConfirmImpact": "None",
+      "SupportsTransactions": false,
+      "NoInvocation": false,
+      "Description": "List User Cipher Uses",
+      "Usage": {
+        "Synopsis": "Interact with Files.com api"
+      },
+      "Parameters": [
+        {
+          "NoGap": true,
+          "OriginalName": "--user-id=",
+          "Name": "UserID",
+          "ParameterType": "string",
+          "ValueFromPipelineByPropertyName": true,
+          "Aliases": [
+            "id"
+          ],
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "User ID.  Provide a value of 0 to operate the current session's user."
+        }
+      ],
+      "Examples": [],
+      "OriginalText": "",
+      "HelpLinks": [
+        "https://www.files.com/docs/integrations/command-line-interface-cli-app"
+      ],
+      "OutputHandlers": [
+        {
+          "ParameterSetName": "Default",
+          "HandlerType": "Function",
+          "Handler": "privFilesCli_UserOutPutHandler"
+        }
+      ]
+    }
+  ]
+}

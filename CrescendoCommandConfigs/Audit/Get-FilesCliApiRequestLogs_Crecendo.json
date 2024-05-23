@@ -1,0 +1,58 @@
+{
+  "$schema": "https://aka.ms/PowerShell/Crescendo/Schemas/2022-06",
+  "AdditionalCrescendoBuilders": [
+    "APIPaging"
+  ],
+  "Commands": [
+    {
+      "Verb": "Get",
+      "Noun": "FilesCliApiRequestLogs",
+      "OriginalName": "files-cli.exe",
+      "OriginalCommandElements": [
+        "api-request-logs",
+        "list",
+        "--format=json,raw",
+        "--use-pager=False"
+      ],
+      "Platform": [
+        "Windows",
+        "Linux",
+        "MacOS"
+      ],
+      "DefaultParameterSetName": "Default",
+      "SupportsShouldProcess": false,
+      "ConfirmImpact": "None",
+      "SupportsTransactions": false,
+      "NoInvocation": false,
+      "Description": "shows Api request logs",
+      "Usage": {
+        "Synopsis": "Interact with Files.com api"
+      },
+      "Parameters": [
+        {
+          "NoGap": true,
+          "OriginalName": "--fields=",
+          "Name": "fields",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "comma seperated fields. example   path,type"
+        }
+      ],
+      "Examples": [],
+      "OriginalText": "",
+      "HelpLinks": [
+        "https://www.files.com/docs/integrations/command-line-interface-cli-app"
+      ],
+      "OutputHandlers": [
+        {
+          "ParameterSetName": "Default",
+          "HandlerType": "Function",
+          "Handler": "privFilesCli_CommonJSONtoPSobjectHandler"
+        }
+      ]
+    }
+  ]
+}

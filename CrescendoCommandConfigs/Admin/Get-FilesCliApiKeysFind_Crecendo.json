@@ -1,0 +1,55 @@
+{
+  "$schema": "https://aka.ms/PowerShell/Crescendo/Schemas/2022-06",
+  "Commands": [
+    {
+      "Verb": "Get",
+      "Noun": "FilesCliApiKeysFind",
+      "OriginalName": "files-cli.exe",
+      "OriginalCommandElements": [
+        "api-keys",
+        "find",
+        "--format=json,raw",
+        "--use-pager=False"
+      ],
+      "Platform": [
+        "Windows",
+        "Linux",
+        "MacOS"
+      ],
+      "DefaultParameterSetName": "Default",
+      "SupportsShouldProcess": false,
+      "ConfirmImpact": "None",
+      "SupportsTransactions": false,
+      "NoInvocation": false,
+      "Description": "lists the Permissions in the site",
+      "Usage": {
+        "Synopsis": "Interact with Files.com api"
+      },
+      "Parameters": [
+        {
+          "NoGap": true,
+          "Mandatory": true,
+          "OriginalName": "--id=",
+          "Name": "ApiID",
+          "ParameterType": "string",
+          "Aliases": [
+            "id"
+          ],
+          "Description": "Will get information from this api id"
+        }
+      ],
+      "Examples": [],
+      "OriginalText": "",
+      "HelpLinks": [
+        "https://www.files.com/docs/integrations/command-line-interface-cli-app"
+      ],
+      "OutputHandlers": [
+        {
+          "ParameterSetName": "Default",
+          "HandlerType": "Function",
+          "Handler": "privFilesCli_CommonJSONtoPSobjectHandler"
+        }
+      ]
+    }
+  ]
+}

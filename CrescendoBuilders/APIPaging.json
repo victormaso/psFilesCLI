@@ -1,0 +1,33 @@
+{
+    "$schema": "https://aka.ms/PowerShell/Crescendo/Schemas/2022-06",
+    "Commands": [
+        {
+            "Parameters": [
+              {
+                "NoGap": true,
+                "OriginalName": "--per-page=",
+                "Name": "PerPage",
+                "ParameterType": "int",
+                "DefaultValue": "200",
+                "ParameterSetName": [
+                  "Default",
+                  "GlobalFlags"
+                ],
+                "Description": "Number of records to show per page.  (Max: 10,000, 1,000 or less is recommended). Note there is no warning if there were more pages available. Set higher if you need to return more data."
+              },
+              {
+                "NoGap": true,
+                "OriginalName": "--max-pages=",
+                "Name": "MaxPages",
+                "ParameterType": "int",
+                "DefaultValue": "50",
+                "ParameterSetName": [
+                  "Default",
+                  "GlobalFlags"
+                ],
+                "Description": "When per-page is set max-pages limits the total number of pages requested. Note there is no warning if there were more pages available. Set higher if you need to return more data."
+              }
+            ]
+        }
+    ]
+}

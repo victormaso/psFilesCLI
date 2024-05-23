@@ -3,10 +3,10 @@
   "Commands": [
     {
       "Verb": "Get",
-      "Noun": "FilesCliPermissionList",
+      "Noun": "FilesCliNotifications",
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
-        "permissions",
+        "notifications",
         "list",
         "--format=json,raw",
         "--use-pager=False"
@@ -21,65 +21,57 @@
       "ConfirmImpact": "None",
       "SupportsTransactions": false,
       "NoInvocation": false,
-      "Description": "lists the Permissions in the site",
+      "Description": "List behaviors in the site",
       "Usage": {
         "Synopsis": "Interact with Files.com api"
       },
       "Parameters": [
         {
           "NoGap": true,
-          "OriginalName": "--include-groups=False",
-          "Name": "DoNotRecurseGroups",
-          "ParameterType": "switch",
-          "ParameterSetName": [
-            "userid",
-            "groupid"
-          ],
-          "Description": "If searching by user or group, do not include user's permissions that are inherited from its groups"
-        },
-        {
-          "NoGap": true,
           "OriginalName": "--path=",
-          "Name": "Path",
+          "Name": "path",
           "ParameterType": "string",
+          "ValueFromPipelineByPropertyName": true,
           "ParameterSetName": [
-            "path"
+            "Default",
+            "GlobalFlags"
           ],
-          "Description": "Permission path.  If provided, will scope all permissions(including upward) to this path."
+          "Description": "Specify the folder path"
         },
         {
           "NoGap": true,
           "OriginalName": "--user-id=",
           "Name": "UserID",
           "ParameterType": "string",
+          "ValueFromPipelineByPropertyName": true,
           "ParameterSetName": [
-            "userid"
+            "Default",
+            "GlobalFlags"
           ],
-          "Description": "If provided, will scope permissions to this user."
+          "Description": "Specify specific User ID"
         },
         {
           "NoGap": true,
           "OriginalName": "--group-id=",
           "Name": "GroupID",
           "ParameterType": "string",
+          "ValueFromPipelineByPropertyName": true,
           "ParameterSetName": [
-            "groupid"
+            "Default",
+            "GlobalFlags"
           ],
-          "Description": "If provided, will scope permissions to this group."
+          "Description": "Specify specific GroupID"
         },
         {
           "NoGap": true,
-          "OriginalName": "--fields=",
-          "Name": "fields",
-          "ParameterType": "string",
+          "OriginalName": "--include-ancestors=false",
+          "Name": "ExcludeAncestors",
+          "ParameterType": "switch",
           "ParameterSetName": [
             "Default",
-            "GlobalFlags",
-            "path",
-            "userid",
-            "groupid"
+            "GlobalFlags"
           ],
-          "Description": "comma seperated fields. example   path,type"
+          "Description": "Does not include notifications for any parent paths."
         }
       ],
       "Examples": [],

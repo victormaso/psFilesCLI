@@ -1,8 +1,8 @@
 # Module created by Microsoft.PowerShell.Crescendo
 # Version: 1.1.0
 # Schema: https://aka.ms/PowerShell/Crescendo/Schemas/2022-06
-# Generated at: 08/22/2023 16:12:58
-class PowerShellCustomFunctionAttribute : System.Attribute { 
+# Generated at: 05/23/2024 10:52:07
+class PowerShellCustomFunctionAttribute : System.Attribute {
     [bool]$RequiresElevation
     [string]$Source
     PowerShellCustomFunctionAttribute() { $this.RequiresElevation = $false; $this.Source = "Microsoft.PowerShell.Crescendo" }
@@ -12,8 +12,6 @@ class PowerShellCustomFunctionAttribute : System.Attribute {
     }
 }
 
-# Queue for holding errors
-$__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
 # Returns available errors
 # Assumes that we are being called from within a script cmdlet when EmitAsError is used.
 function Pop-CrescendoNativeError {
@@ -79,6 +77,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          Source = @{
                OriginalName = ''
@@ -221,6 +221,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -232,9 +233,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -277,6 +289,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -348,6 +362,1010 @@ https://www.files.com/docs/integrations/command-line-interface-cli-app
 }
 
 
+function Get-FilesCliApiKeysFind
+{
+[PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
+[CmdletBinding(ConfirmImpact='None',DefaultParameterSetName='Default')]
+
+param(
+[Alias('id')]
+[Parameter(Mandatory=$true)]
+[string]$ApiID,
+[Parameter()]
+[string]$apikey,
+[Parameter()]
+[string]$debugOutputPath,
+[Parameter()]
+[switch]$CheckCliVersion,
+[Parameter()]
+[string]$output,
+[Parameter()]
+[string]$profile,
+[Parameter()]
+[string]$reauthentication
+    )
+
+BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
+    $__PARAMETERMAP = @{
+         ApiID = @{
+               OriginalName = '--id='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         apikey = @{
+               OriginalName = '--api-key='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         debugOutputPath = @{
+               OriginalName = '--debug='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         CheckCliVersion = @{
+               OriginalName = '--ignore-version-check=False'
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'switch'
+               ApplyToExecutable = $False
+               NoGap = $True
+               DefaultMissingValue = '--ignore-version-check=True'
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         output = @{
+               OriginalName = '--output='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         profile = @{
+               OriginalName = '--profile='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         reauthentication = @{
+               OriginalName = '--reauthentication='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+    }
+
+    $__outputHandlers = @{
+        Default = @{ StreamOutput = $False; Handler = 'privFilesCli_CommonJSONtoPSobjectHandler' }
+    }
+}
+
+PROCESS {
+    $__boundParameters = $PSBoundParameters
+    $__defaultValueParameters = $PSCmdlet.MyInvocation.MyCommand.Parameters.Values.Where({$_.Attributes.Where({$_.TypeId.Name -eq "PSDefaultValueAttribute"})}).Name
+    $__defaultValueParameters.Where({ !$__boundParameters["$_"] }).ForEach({$__boundParameters["$_"] = get-variable -value $_})
+    $__commandArgs = @()
+    $MyInvocation.MyCommand.Parameters.Values.Where({$_.SwitchParameter -and $_.Name -notmatch "Debug|Whatif|Confirm|Verbose" -and ! $__boundParameters[$_.Name]}).ForEach({$__boundParameters[$_.Name] = [switch]::new($false)})
+    if ($__boundParameters["Debug"]){wait-debugger}
+    $__commandArgs += 'api-keys'
+    $__commandArgs += 'find'
+    $__commandArgs += '--format=json,raw'
+    $__commandArgs += '--use-pager=False'
+    foreach ($paramName in $__boundParameters.Keys|
+            Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
+            Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
+        $value = $__boundParameters[$paramName]
+        $param = $__PARAMETERMAP[$paramName]
+        if ($param) {
+            if ($value -is [switch]) {
+                 if ($value.IsPresent) {
+                     if ($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                 }
+                 elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
+            }
+            elseif ( $param.NoGap ) {
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
+            }
+            else {
+                if($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                if($param.ArgumentTransformType -eq 'inline') {
+                   $transform = [scriptblock]::Create($param.ArgumentTransform)
+                }
+                else {
+                   $transform = $param.ArgumentTransform
+                }
+                $__commandArgs += & $transform $value
+            }
+        }
+    }
+    $__commandArgs = $__commandArgs | Where-Object {$_ -ne $null}
+    if ($__boundParameters["Debug"]){wait-debugger}
+    if ( $__boundParameters["Verbose"]) {
+         Write-Verbose -Verbose -Message "files-cli.exe"
+         $__commandArgs | Write-Verbose -Verbose
+    }
+    $__handlerInfo = $__outputHandlers[$PSCmdlet.ParameterSetName]
+    if (! $__handlerInfo ) {
+        $__handlerInfo = $__outputHandlers["Default"] # Guaranteed to be present
+    }
+    $__handler = $__handlerInfo.Handler
+    if ( $PSCmdlet.ShouldProcess("files-cli.exe $__commandArgs")) {
+    # check for the application and throw if it cannot be found
+        if ( -not (Get-Command -ErrorAction Ignore "files-cli.exe")) {
+          throw "Cannot find executable 'files-cli.exe'"
+        }
+        if ( $__handlerInfo.StreamOutput ) {
+            if ( $null -eq $__handler ) {
+                & "files-cli.exe" $__commandArgs
+            }
+            else {
+                & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError | & $__handler
+            }
+        }
+        else {
+            $result = & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError
+            & $__handler $result
+        }
+    }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
+  } # end PROCESS
+
+<#
+.SYNOPSIS
+Interact with Files.com api
+
+.DESCRIPTION
+lists the Permissions in the site
+
+.PARAMETER ApiID
+Will get information from this api id
+
+
+.PARAMETER apikey
+String of API key
+
+
+.PARAMETER debugOutputPath
+File Path for debug log
+
+
+.PARAMETER CheckCliVersion
+'True' or 'False' strings can be used
+
+
+.PARAMETER output
+file path to save output
+
+
+.PARAMETER profile
+Specify the profile string that was previously set
+
+
+.PARAMETER reauthentication
+Specify the password
+
+
+
+.LINK
+https://www.files.com/docs/integrations/command-line-interface-cli-app
+
+#>
+}
+
+
+function Get-FilesCliApiKeysList
+{
+[PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
+[CmdletBinding(ConfirmImpact='None',DefaultParameterSetName='Default')]
+
+param(
+[Alias('id')]
+[Parameter(ParameterSetName='userid')]
+[string]$UserID,
+[Parameter()]
+[string]$apikey,
+[Parameter()]
+[string]$debugOutputPath,
+[Parameter()]
+[switch]$CheckCliVersion,
+[Parameter()]
+[string]$output,
+[Parameter()]
+[string]$profile,
+[Parameter()]
+[string]$reauthentication
+    )
+
+BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
+    $__PARAMETERMAP = @{
+         UserID = @{
+               OriginalName = '--user-id='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         apikey = @{
+               OriginalName = '--api-key='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         debugOutputPath = @{
+               OriginalName = '--debug='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         CheckCliVersion = @{
+               OriginalName = '--ignore-version-check=False'
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'switch'
+               ApplyToExecutable = $False
+               NoGap = $True
+               DefaultMissingValue = '--ignore-version-check=True'
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         output = @{
+               OriginalName = '--output='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         profile = @{
+               OriginalName = '--profile='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         reauthentication = @{
+               OriginalName = '--reauthentication='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+    }
+
+    $__outputHandlers = @{
+        Default = @{ StreamOutput = $False; Handler = 'privFilesCli_CommonJSONtoPSobjectHandler' }
+    }
+}
+
+PROCESS {
+    $__boundParameters = $PSBoundParameters
+    $__defaultValueParameters = $PSCmdlet.MyInvocation.MyCommand.Parameters.Values.Where({$_.Attributes.Where({$_.TypeId.Name -eq "PSDefaultValueAttribute"})}).Name
+    $__defaultValueParameters.Where({ !$__boundParameters["$_"] }).ForEach({$__boundParameters["$_"] = get-variable -value $_})
+    $__commandArgs = @()
+    $MyInvocation.MyCommand.Parameters.Values.Where({$_.SwitchParameter -and $_.Name -notmatch "Debug|Whatif|Confirm|Verbose" -and ! $__boundParameters[$_.Name]}).ForEach({$__boundParameters[$_.Name] = [switch]::new($false)})
+    if ($__boundParameters["Debug"]){wait-debugger}
+    $__commandArgs += 'api-keys'
+    $__commandArgs += 'list'
+    $__commandArgs += '--format=json,raw'
+    $__commandArgs += '--use-pager=False'
+    foreach ($paramName in $__boundParameters.Keys|
+            Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
+            Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
+        $value = $__boundParameters[$paramName]
+        $param = $__PARAMETERMAP[$paramName]
+        if ($param) {
+            if ($value -is [switch]) {
+                 if ($value.IsPresent) {
+                     if ($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                 }
+                 elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
+            }
+            elseif ( $param.NoGap ) {
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
+            }
+            else {
+                if($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                if($param.ArgumentTransformType -eq 'inline') {
+                   $transform = [scriptblock]::Create($param.ArgumentTransform)
+                }
+                else {
+                   $transform = $param.ArgumentTransform
+                }
+                $__commandArgs += & $transform $value
+            }
+        }
+    }
+    $__commandArgs = $__commandArgs | Where-Object {$_ -ne $null}
+    if ($__boundParameters["Debug"]){wait-debugger}
+    if ( $__boundParameters["Verbose"]) {
+         Write-Verbose -Verbose -Message "files-cli.exe"
+         $__commandArgs | Write-Verbose -Verbose
+    }
+    $__handlerInfo = $__outputHandlers[$PSCmdlet.ParameterSetName]
+    if (! $__handlerInfo ) {
+        $__handlerInfo = $__outputHandlers["Default"] # Guaranteed to be present
+    }
+    $__handler = $__handlerInfo.Handler
+    if ( $PSCmdlet.ShouldProcess("files-cli.exe $__commandArgs")) {
+    # check for the application and throw if it cannot be found
+        if ( -not (Get-Command -ErrorAction Ignore "files-cli.exe")) {
+          throw "Cannot find executable 'files-cli.exe'"
+        }
+        if ( $__handlerInfo.StreamOutput ) {
+            if ( $null -eq $__handler ) {
+                & "files-cli.exe" $__commandArgs
+            }
+            else {
+                & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError | & $__handler
+            }
+        }
+        else {
+            $result = & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError
+            & $__handler $result
+        }
+    }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
+  } # end PROCESS
+
+<#
+.SYNOPSIS
+Interact with Files.com api
+
+.DESCRIPTION
+lists the Permissions in the site
+
+.PARAMETER UserID
+If provided, will scope to this user
+
+
+.PARAMETER apikey
+String of API key
+
+
+.PARAMETER debugOutputPath
+File Path for debug log
+
+
+.PARAMETER CheckCliVersion
+'True' or 'False' strings can be used
+
+
+.PARAMETER output
+file path to save output
+
+
+.PARAMETER profile
+Specify the profile string that was previously set
+
+
+.PARAMETER reauthentication
+Specify the password
+
+
+
+.LINK
+https://www.files.com/docs/integrations/command-line-interface-cli-app
+
+#>
+}
+
+
+function Get-FilesCliApiRequestLogs
+{
+[PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
+[CmdletBinding(ConfirmImpact='None',DefaultParameterSetName='Default')]
+
+param(
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[string]$fields,
+[Parameter()]
+[string]$apikey,
+[Parameter()]
+[string]$debugOutputPath,
+[Parameter()]
+[switch]$CheckCliVersion,
+[Parameter()]
+[string]$output,
+[Parameter()]
+[string]$profile,
+[Parameter()]
+[string]$reauthentication,
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[PSDefaultValue(Value="200")]
+[int]$PerPage = "200",
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[PSDefaultValue(Value="50")]
+[int]$MaxPages = "50"
+    )
+
+BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
+    $__PARAMETERMAP = @{
+         fields = @{
+               OriginalName = '--fields='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         apikey = @{
+               OriginalName = '--api-key='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         debugOutputPath = @{
+               OriginalName = '--debug='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         CheckCliVersion = @{
+               OriginalName = '--ignore-version-check=False'
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'switch'
+               ApplyToExecutable = $False
+               NoGap = $True
+               DefaultMissingValue = '--ignore-version-check=True'
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         output = @{
+               OriginalName = '--output='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         profile = @{
+               OriginalName = '--profile='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         reauthentication = @{
+               OriginalName = '--reauthentication='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         PerPage = @{
+               OriginalName = '--per-page='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'int'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         MaxPages = @{
+               OriginalName = '--max-pages='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'int'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+    }
+
+    $__outputHandlers = @{
+        Default = @{ StreamOutput = $False; Handler = 'privFilesCli_CommonJSONtoPSobjectHandler' }
+    }
+}
+
+PROCESS {
+    $__boundParameters = $PSBoundParameters
+    $__defaultValueParameters = $PSCmdlet.MyInvocation.MyCommand.Parameters.Values.Where({$_.Attributes.Where({$_.TypeId.Name -eq "PSDefaultValueAttribute"})}).Name
+    $__defaultValueParameters.Where({ !$__boundParameters["$_"] }).ForEach({$__boundParameters["$_"] = get-variable -value $_})
+    $__commandArgs = @()
+    $MyInvocation.MyCommand.Parameters.Values.Where({$_.SwitchParameter -and $_.Name -notmatch "Debug|Whatif|Confirm|Verbose" -and ! $__boundParameters[$_.Name]}).ForEach({$__boundParameters[$_.Name] = [switch]::new($false)})
+    if ($__boundParameters["Debug"]){wait-debugger}
+    $__commandArgs += 'api-request-logs'
+    $__commandArgs += 'list'
+    $__commandArgs += '--format=json,raw'
+    $__commandArgs += '--use-pager=False'
+    foreach ($paramName in $__boundParameters.Keys|
+            Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
+            Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
+        $value = $__boundParameters[$paramName]
+        $param = $__PARAMETERMAP[$paramName]
+        if ($param) {
+            if ($value -is [switch]) {
+                 if ($value.IsPresent) {
+                     if ($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                 }
+                 elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
+            }
+            elseif ( $param.NoGap ) {
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
+            }
+            else {
+                if($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                if($param.ArgumentTransformType -eq 'inline') {
+                   $transform = [scriptblock]::Create($param.ArgumentTransform)
+                }
+                else {
+                   $transform = $param.ArgumentTransform
+                }
+                $__commandArgs += & $transform $value
+            }
+        }
+    }
+    $__commandArgs = $__commandArgs | Where-Object {$_ -ne $null}
+    if ($__boundParameters["Debug"]){wait-debugger}
+    if ( $__boundParameters["Verbose"]) {
+         Write-Verbose -Verbose -Message "files-cli.exe"
+         $__commandArgs | Write-Verbose -Verbose
+    }
+    $__handlerInfo = $__outputHandlers[$PSCmdlet.ParameterSetName]
+    if (! $__handlerInfo ) {
+        $__handlerInfo = $__outputHandlers["Default"] # Guaranteed to be present
+    }
+    $__handler = $__handlerInfo.Handler
+    if ( $PSCmdlet.ShouldProcess("files-cli.exe $__commandArgs")) {
+    # check for the application and throw if it cannot be found
+        if ( -not (Get-Command -ErrorAction Ignore "files-cli.exe")) {
+          throw "Cannot find executable 'files-cli.exe'"
+        }
+        if ( $__handlerInfo.StreamOutput ) {
+            if ( $null -eq $__handler ) {
+                & "files-cli.exe" $__commandArgs
+            }
+            else {
+                & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError | & $__handler
+            }
+        }
+        else {
+            $result = & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError
+            & $__handler $result
+        }
+    }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
+  } # end PROCESS
+
+<#
+.SYNOPSIS
+Interact with Files.com api
+
+.DESCRIPTION
+shows Api request logs
+
+.PARAMETER fields
+comma seperated fields. example   path,type
+
+
+.PARAMETER apikey
+String of API key
+
+
+.PARAMETER debugOutputPath
+File Path for debug log
+
+
+.PARAMETER CheckCliVersion
+'True' or 'False' strings can be used
+
+
+.PARAMETER output
+file path to save output
+
+
+.PARAMETER profile
+Specify the profile string that was previously set
+
+
+.PARAMETER reauthentication
+Specify the password
+
+
+.PARAMETER PerPage
+Number of records to show per page.  (Max: 10,000, 1,000 or less is recommended). Note there is no warning if there were more pages available. Set higher if you need to return more data.
+
+
+.PARAMETER MaxPages
+When per-page is set max-pages limits the total number of pages requested. Note there is no warning if there were more pages available. Set higher if you need to return more data.
+
+
+
+.LINK
+https://www.files.com/docs/integrations/command-line-interface-cli-app
+
+#>
+}
+
+
+function Get-FilesCliAutomationLogs
+{
+[PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
+[CmdletBinding(ConfirmImpact='None',DefaultParameterSetName='Default')]
+
+param(
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[string[]]$fields,
+[Parameter()]
+[string]$apikey,
+[Parameter()]
+[string]$debugOutputPath,
+[Parameter()]
+[switch]$CheckCliVersion,
+[Parameter()]
+[string]$output,
+[Parameter()]
+[string]$profile,
+[Parameter()]
+[string]$reauthentication,
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[PSDefaultValue(Value="200")]
+[int]$PerPage = "200",
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[PSDefaultValue(Value="50")]
+[int]$MaxPages = "50"
+    )
+
+BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
+    $__PARAMETERMAP = @{
+         fields = @{
+               OriginalName = ''
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string[]'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = 'privFilesCli_FieldsArrayToCommaSeparated'
+               ArgumentTransformType = 'Function'
+               }
+         apikey = @{
+               OriginalName = '--api-key='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         debugOutputPath = @{
+               OriginalName = '--debug='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         CheckCliVersion = @{
+               OriginalName = '--ignore-version-check=False'
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'switch'
+               ApplyToExecutable = $False
+               NoGap = $True
+               DefaultMissingValue = '--ignore-version-check=True'
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         output = @{
+               OriginalName = '--output='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         profile = @{
+               OriginalName = '--profile='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         reauthentication = @{
+               OriginalName = '--reauthentication='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         PerPage = @{
+               OriginalName = '--per-page='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'int'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         MaxPages = @{
+               OriginalName = '--max-pages='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'int'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+    }
+
+    $__outputHandlers = @{
+        Default = @{ StreamOutput = $False; Handler = 'privFilesCli_CommonJSONtoPSobjectHandler' }
+    }
+}
+
+PROCESS {
+    $__boundParameters = $PSBoundParameters
+    $__defaultValueParameters = $PSCmdlet.MyInvocation.MyCommand.Parameters.Values.Where({$_.Attributes.Where({$_.TypeId.Name -eq "PSDefaultValueAttribute"})}).Name
+    $__defaultValueParameters.Where({ !$__boundParameters["$_"] }).ForEach({$__boundParameters["$_"] = get-variable -value $_})
+    $__commandArgs = @()
+    $MyInvocation.MyCommand.Parameters.Values.Where({$_.SwitchParameter -and $_.Name -notmatch "Debug|Whatif|Confirm|Verbose" -and ! $__boundParameters[$_.Name]}).ForEach({$__boundParameters[$_.Name] = [switch]::new($false)})
+    if ($__boundParameters["Debug"]){wait-debugger}
+    $__commandArgs += 'automation-runs'
+    $__commandArgs += 'list'
+    $__commandArgs += '--format=json,raw'
+    $__commandArgs += '--use-pager=False'
+    foreach ($paramName in $__boundParameters.Keys|
+            Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
+            Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
+        $value = $__boundParameters[$paramName]
+        $param = $__PARAMETERMAP[$paramName]
+        if ($param) {
+            if ($value -is [switch]) {
+                 if ($value.IsPresent) {
+                     if ($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                 }
+                 elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
+            }
+            elseif ( $param.NoGap ) {
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
+            }
+            else {
+                if($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                if($param.ArgumentTransformType -eq 'inline') {
+                   $transform = [scriptblock]::Create($param.ArgumentTransform)
+                }
+                else {
+                   $transform = $param.ArgumentTransform
+                }
+                $__commandArgs += & $transform $value
+            }
+        }
+    }
+    $__commandArgs = $__commandArgs | Where-Object {$_ -ne $null}
+    if ($__boundParameters["Debug"]){wait-debugger}
+    if ( $__boundParameters["Verbose"]) {
+         Write-Verbose -Verbose -Message "files-cli.exe"
+         $__commandArgs | Write-Verbose -Verbose
+    }
+    $__handlerInfo = $__outputHandlers[$PSCmdlet.ParameterSetName]
+    if (! $__handlerInfo ) {
+        $__handlerInfo = $__outputHandlers["Default"] # Guaranteed to be present
+    }
+    $__handler = $__handlerInfo.Handler
+    if ( $PSCmdlet.ShouldProcess("files-cli.exe $__commandArgs")) {
+    # check for the application and throw if it cannot be found
+        if ( -not (Get-Command -ErrorAction Ignore "files-cli.exe")) {
+          throw "Cannot find executable 'files-cli.exe'"
+        }
+        if ( $__handlerInfo.StreamOutput ) {
+            if ( $null -eq $__handler ) {
+                & "files-cli.exe" $__commandArgs
+            }
+            else {
+                & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError | & $__handler
+            }
+        }
+        else {
+            $result = & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError
+            & $__handler $result
+        }
+    }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
+  } # end PROCESS
+
+<#
+.SYNOPSIS
+Interact with Files.com api
+
+.DESCRIPTION
+Automation Run Logs
+
+.PARAMETER fields
+comma seperated fields. example   path,type
+
+
+.PARAMETER apikey
+String of API key
+
+
+.PARAMETER debugOutputPath
+File Path for debug log
+
+
+.PARAMETER CheckCliVersion
+'True' or 'False' strings can be used
+
+
+.PARAMETER output
+file path to save output
+
+
+.PARAMETER profile
+Specify the profile string that was previously set
+
+
+.PARAMETER reauthentication
+Specify the password
+
+
+.PARAMETER PerPage
+Number of records to show per page.  (Max: 10,000, 1,000 or less is recommended). Note there is no warning if there were more pages available. Set higher if you need to return more data.
+
+
+.PARAMETER MaxPages
+When per-page is set max-pages limits the total number of pages requested. Note there is no warning if there were more pages available. Set higher if you need to return more data.
+
+
+
+.LINK
+https://www.files.com/docs/integrations/command-line-interface-cli-app
+
+#>
+}
+
+
 function Get-FilesCliAutomationRunsFind
 {
 [PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
@@ -376,6 +1394,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          automationRunId = @{
                OriginalName = '--id='
@@ -478,6 +1498,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -489,9 +1510,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -534,6 +1566,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -611,6 +1645,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          automationid = @{
                OriginalName = '--automation-id='
@@ -713,6 +1749,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -724,9 +1761,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -769,6 +1817,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -842,6 +1892,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          fields = @{
                OriginalName = '--fields='
@@ -934,6 +1986,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -945,9 +1998,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -990,6 +2054,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -1064,6 +2130,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          behavior = @{
                OriginalName = '--behavior='
@@ -1166,6 +2234,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -1177,9 +2246,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -1222,6 +2302,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -1303,6 +2385,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          path = @{
                OriginalName = '--path='
@@ -1415,6 +2499,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -1426,9 +2511,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -1471,6 +2567,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -1568,6 +2666,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          path = @{
                OriginalName = ''
@@ -1721,6 +2821,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -1732,9 +2833,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -1777,6 +2889,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -1867,6 +2981,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          apikey = @{
                OriginalName = '--api-key='
@@ -1947,6 +3063,7 @@ PROCESS {
     $__commandArgs += 'show'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -1958,9 +3075,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -2003,6 +3131,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -2044,6 +3174,544 @@ https://www.files.com/docs/integrations/command-line-interface-cli-app
 }
 
 
+function Get-FilesCliEmailIncomingMessages
+{
+[PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
+[CmdletBinding(ConfirmImpact='None',DefaultParameterSetName='Default')]
+
+param(
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[string]$fields,
+[Parameter()]
+[string]$apikey,
+[Parameter()]
+[string]$debugOutputPath,
+[Parameter()]
+[switch]$CheckCliVersion,
+[Parameter()]
+[string]$output,
+[Parameter()]
+[string]$profile,
+[Parameter()]
+[string]$reauthentication,
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[PSDefaultValue(Value="200")]
+[int]$PerPage = "200",
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[PSDefaultValue(Value="50")]
+[int]$MaxPages = "50"
+    )
+
+BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
+    $__PARAMETERMAP = @{
+         fields = @{
+               OriginalName = '--fields='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         apikey = @{
+               OriginalName = '--api-key='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         debugOutputPath = @{
+               OriginalName = '--debug='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         CheckCliVersion = @{
+               OriginalName = '--ignore-version-check=False'
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'switch'
+               ApplyToExecutable = $False
+               NoGap = $True
+               DefaultMissingValue = '--ignore-version-check=True'
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         output = @{
+               OriginalName = '--output='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         profile = @{
+               OriginalName = '--profile='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         reauthentication = @{
+               OriginalName = '--reauthentication='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         PerPage = @{
+               OriginalName = '--per-page='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'int'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         MaxPages = @{
+               OriginalName = '--max-pages='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'int'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+    }
+
+    $__outputHandlers = @{
+        Default = @{ StreamOutput = $False; Handler = 'privFilesCli_CommonJSONtoPSobjectHandler' }
+    }
+}
+
+PROCESS {
+    $__boundParameters = $PSBoundParameters
+    $__defaultValueParameters = $PSCmdlet.MyInvocation.MyCommand.Parameters.Values.Where({$_.Attributes.Where({$_.TypeId.Name -eq "PSDefaultValueAttribute"})}).Name
+    $__defaultValueParameters.Where({ !$__boundParameters["$_"] }).ForEach({$__boundParameters["$_"] = get-variable -value $_})
+    $__commandArgs = @()
+    $MyInvocation.MyCommand.Parameters.Values.Where({$_.SwitchParameter -and $_.Name -notmatch "Debug|Whatif|Confirm|Verbose" -and ! $__boundParameters[$_.Name]}).ForEach({$__boundParameters[$_.Name] = [switch]::new($false)})
+    if ($__boundParameters["Debug"]){wait-debugger}
+    $__commandArgs += 'email-incoming-messages'
+    $__commandArgs += 'list'
+    $__commandArgs += '--format=json,raw'
+    $__commandArgs += '--use-pager=False'
+    foreach ($paramName in $__boundParameters.Keys|
+            Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
+            Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
+        $value = $__boundParameters[$paramName]
+        $param = $__PARAMETERMAP[$paramName]
+        if ($param) {
+            if ($value -is [switch]) {
+                 if ($value.IsPresent) {
+                     if ($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                 }
+                 elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
+            }
+            elseif ( $param.NoGap ) {
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
+            }
+            else {
+                if($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                if($param.ArgumentTransformType -eq 'inline') {
+                   $transform = [scriptblock]::Create($param.ArgumentTransform)
+                }
+                else {
+                   $transform = $param.ArgumentTransform
+                }
+                $__commandArgs += & $transform $value
+            }
+        }
+    }
+    $__commandArgs = $__commandArgs | Where-Object {$_ -ne $null}
+    if ($__boundParameters["Debug"]){wait-debugger}
+    if ( $__boundParameters["Verbose"]) {
+         Write-Verbose -Verbose -Message "files-cli.exe"
+         $__commandArgs | Write-Verbose -Verbose
+    }
+    $__handlerInfo = $__outputHandlers[$PSCmdlet.ParameterSetName]
+    if (! $__handlerInfo ) {
+        $__handlerInfo = $__outputHandlers["Default"] # Guaranteed to be present
+    }
+    $__handler = $__handlerInfo.Handler
+    if ( $PSCmdlet.ShouldProcess("files-cli.exe $__commandArgs")) {
+    # check for the application and throw if it cannot be found
+        if ( -not (Get-Command -ErrorAction Ignore "files-cli.exe")) {
+          throw "Cannot find executable 'files-cli.exe'"
+        }
+        if ( $__handlerInfo.StreamOutput ) {
+            if ( $null -eq $__handler ) {
+                & "files-cli.exe" $__commandArgs
+            }
+            else {
+                & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError | & $__handler
+            }
+        }
+        else {
+            $result = & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError
+            & $__handler $result
+        }
+    }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
+  } # end PROCESS
+
+<#
+.SYNOPSIS
+Interact with Files.com api
+
+.DESCRIPTION
+shows Api request logs
+
+.PARAMETER fields
+comma seperated fields. example   path,type
+
+
+.PARAMETER apikey
+String of API key
+
+
+.PARAMETER debugOutputPath
+File Path for debug log
+
+
+.PARAMETER CheckCliVersion
+'True' or 'False' strings can be used
+
+
+.PARAMETER output
+file path to save output
+
+
+.PARAMETER profile
+Specify the profile string that was previously set
+
+
+.PARAMETER reauthentication
+Specify the password
+
+
+.PARAMETER PerPage
+Number of records to show per page.  (Max: 10,000, 1,000 or less is recommended). Note there is no warning if there were more pages available. Set higher if you need to return more data.
+
+
+.PARAMETER MaxPages
+When per-page is set max-pages limits the total number of pages requested. Note there is no warning if there were more pages available. Set higher if you need to return more data.
+
+
+
+.LINK
+https://www.files.com/docs/integrations/command-line-interface-cli-app
+
+#>
+}
+
+
+function Get-FilesCliEmailLogs
+{
+[PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
+[CmdletBinding(ConfirmImpact='None',DefaultParameterSetName='Default')]
+
+param(
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[string]$fields,
+[Parameter()]
+[string]$apikey,
+[Parameter()]
+[string]$debugOutputPath,
+[Parameter()]
+[switch]$CheckCliVersion,
+[Parameter()]
+[string]$output,
+[Parameter()]
+[string]$profile,
+[Parameter()]
+[string]$reauthentication,
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[PSDefaultValue(Value="200")]
+[int]$PerPage = "200",
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[PSDefaultValue(Value="50")]
+[int]$MaxPages = "50"
+    )
+
+BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
+    $__PARAMETERMAP = @{
+         fields = @{
+               OriginalName = '--fields='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         apikey = @{
+               OriginalName = '--api-key='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         debugOutputPath = @{
+               OriginalName = '--debug='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         CheckCliVersion = @{
+               OriginalName = '--ignore-version-check=False'
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'switch'
+               ApplyToExecutable = $False
+               NoGap = $True
+               DefaultMissingValue = '--ignore-version-check=True'
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         output = @{
+               OriginalName = '--output='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         profile = @{
+               OriginalName = '--profile='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         reauthentication = @{
+               OriginalName = '--reauthentication='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         PerPage = @{
+               OriginalName = '--per-page='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'int'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         MaxPages = @{
+               OriginalName = '--max-pages='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'int'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+    }
+
+    $__outputHandlers = @{
+        Default = @{ StreamOutput = $False; Handler = 'privFilesCli_CommonJSONtoPSobjectHandler' }
+    }
+}
+
+PROCESS {
+    $__boundParameters = $PSBoundParameters
+    $__defaultValueParameters = $PSCmdlet.MyInvocation.MyCommand.Parameters.Values.Where({$_.Attributes.Where({$_.TypeId.Name -eq "PSDefaultValueAttribute"})}).Name
+    $__defaultValueParameters.Where({ !$__boundParameters["$_"] }).ForEach({$__boundParameters["$_"] = get-variable -value $_})
+    $__commandArgs = @()
+    $MyInvocation.MyCommand.Parameters.Values.Where({$_.SwitchParameter -and $_.Name -notmatch "Debug|Whatif|Confirm|Verbose" -and ! $__boundParameters[$_.Name]}).ForEach({$__boundParameters[$_.Name] = [switch]::new($false)})
+    if ($__boundParameters["Debug"]){wait-debugger}
+    $__commandArgs += 'email-logs'
+    $__commandArgs += 'list'
+    $__commandArgs += '--format=json,raw'
+    $__commandArgs += '--use-pager=False'
+    foreach ($paramName in $__boundParameters.Keys|
+            Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
+            Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
+        $value = $__boundParameters[$paramName]
+        $param = $__PARAMETERMAP[$paramName]
+        if ($param) {
+            if ($value -is [switch]) {
+                 if ($value.IsPresent) {
+                     if ($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                 }
+                 elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
+            }
+            elseif ( $param.NoGap ) {
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
+            }
+            else {
+                if($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                if($param.ArgumentTransformType -eq 'inline') {
+                   $transform = [scriptblock]::Create($param.ArgumentTransform)
+                }
+                else {
+                   $transform = $param.ArgumentTransform
+                }
+                $__commandArgs += & $transform $value
+            }
+        }
+    }
+    $__commandArgs = $__commandArgs | Where-Object {$_ -ne $null}
+    if ($__boundParameters["Debug"]){wait-debugger}
+    if ( $__boundParameters["Verbose"]) {
+         Write-Verbose -Verbose -Message "files-cli.exe"
+         $__commandArgs | Write-Verbose -Verbose
+    }
+    $__handlerInfo = $__outputHandlers[$PSCmdlet.ParameterSetName]
+    if (! $__handlerInfo ) {
+        $__handlerInfo = $__outputHandlers["Default"] # Guaranteed to be present
+    }
+    $__handler = $__handlerInfo.Handler
+    if ( $PSCmdlet.ShouldProcess("files-cli.exe $__commandArgs")) {
+    # check for the application and throw if it cannot be found
+        if ( -not (Get-Command -ErrorAction Ignore "files-cli.exe")) {
+          throw "Cannot find executable 'files-cli.exe'"
+        }
+        if ( $__handlerInfo.StreamOutput ) {
+            if ( $null -eq $__handler ) {
+                & "files-cli.exe" $__commandArgs
+            }
+            else {
+                & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError | & $__handler
+            }
+        }
+        else {
+            $result = & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError
+            & $__handler $result
+        }
+    }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
+  } # end PROCESS
+
+<#
+.SYNOPSIS
+Interact with Files.com api
+
+.DESCRIPTION
+shows Email logs
+
+.PARAMETER fields
+comma seperated fields. example   path,type
+
+
+.PARAMETER apikey
+String of API key
+
+
+.PARAMETER debugOutputPath
+File Path for debug log
+
+
+.PARAMETER CheckCliVersion
+'True' or 'False' strings can be used
+
+
+.PARAMETER output
+file path to save output
+
+
+.PARAMETER profile
+Specify the profile string that was previously set
+
+
+.PARAMETER reauthentication
+Specify the password
+
+
+.PARAMETER PerPage
+Number of records to show per page.  (Max: 10,000, 1,000 or less is recommended). Note there is no warning if there were more pages available. Set higher if you need to return more data.
+
+
+.PARAMETER MaxPages
+When per-page is set max-pages limits the total number of pages requested. Note there is no warning if there were more pages available. Set higher if you need to return more data.
+
+
+
+.LINK
+https://www.files.com/docs/integrations/command-line-interface-cli-app
+
+#>
+}
+
+
 function Get-FilesCliExternalEventsList
 {
 [PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
@@ -2068,6 +3736,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          fields = @{
                OriginalName = '--fields='
@@ -2160,6 +3830,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -2171,9 +3842,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -2216,6 +3898,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -2261,6 +3945,544 @@ https://www.files.com/docs/integrations/command-line-interface-cli-app
 }
 
 
+function Get-FilesCliFileMigrationLogs
+{
+[PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
+[CmdletBinding(ConfirmImpact='None',DefaultParameterSetName='Default')]
+
+param(
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[string]$fields,
+[Parameter()]
+[string]$apikey,
+[Parameter()]
+[string]$debugOutputPath,
+[Parameter()]
+[switch]$CheckCliVersion,
+[Parameter()]
+[string]$output,
+[Parameter()]
+[string]$profile,
+[Parameter()]
+[string]$reauthentication,
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[PSDefaultValue(Value="200")]
+[int]$PerPage = "200",
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[PSDefaultValue(Value="50")]
+[int]$MaxPages = "50"
+    )
+
+BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
+    $__PARAMETERMAP = @{
+         fields = @{
+               OriginalName = '--fields='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         apikey = @{
+               OriginalName = '--api-key='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         debugOutputPath = @{
+               OriginalName = '--debug='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         CheckCliVersion = @{
+               OriginalName = '--ignore-version-check=False'
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'switch'
+               ApplyToExecutable = $False
+               NoGap = $True
+               DefaultMissingValue = '--ignore-version-check=True'
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         output = @{
+               OriginalName = '--output='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         profile = @{
+               OriginalName = '--profile='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         reauthentication = @{
+               OriginalName = '--reauthentication='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         PerPage = @{
+               OriginalName = '--per-page='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'int'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         MaxPages = @{
+               OriginalName = '--max-pages='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'int'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+    }
+
+    $__outputHandlers = @{
+        Default = @{ StreamOutput = $False; Handler = 'privFilesCli_CommonJSONtoPSobjectHandler' }
+    }
+}
+
+PROCESS {
+    $__boundParameters = $PSBoundParameters
+    $__defaultValueParameters = $PSCmdlet.MyInvocation.MyCommand.Parameters.Values.Where({$_.Attributes.Where({$_.TypeId.Name -eq "PSDefaultValueAttribute"})}).Name
+    $__defaultValueParameters.Where({ !$__boundParameters["$_"] }).ForEach({$__boundParameters["$_"] = get-variable -value $_})
+    $__commandArgs = @()
+    $MyInvocation.MyCommand.Parameters.Values.Where({$_.SwitchParameter -and $_.Name -notmatch "Debug|Whatif|Confirm|Verbose" -and ! $__boundParameters[$_.Name]}).ForEach({$__boundParameters[$_.Name] = [switch]::new($false)})
+    if ($__boundParameters["Debug"]){wait-debugger}
+    $__commandArgs += 'file-migration-logs'
+    $__commandArgs += 'list'
+    $__commandArgs += '--format=json,raw'
+    $__commandArgs += '--use-pager=False'
+    foreach ($paramName in $__boundParameters.Keys|
+            Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
+            Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
+        $value = $__boundParameters[$paramName]
+        $param = $__PARAMETERMAP[$paramName]
+        if ($param) {
+            if ($value -is [switch]) {
+                 if ($value.IsPresent) {
+                     if ($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                 }
+                 elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
+            }
+            elseif ( $param.NoGap ) {
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
+            }
+            else {
+                if($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                if($param.ArgumentTransformType -eq 'inline') {
+                   $transform = [scriptblock]::Create($param.ArgumentTransform)
+                }
+                else {
+                   $transform = $param.ArgumentTransform
+                }
+                $__commandArgs += & $transform $value
+            }
+        }
+    }
+    $__commandArgs = $__commandArgs | Where-Object {$_ -ne $null}
+    if ($__boundParameters["Debug"]){wait-debugger}
+    if ( $__boundParameters["Verbose"]) {
+         Write-Verbose -Verbose -Message "files-cli.exe"
+         $__commandArgs | Write-Verbose -Verbose
+    }
+    $__handlerInfo = $__outputHandlers[$PSCmdlet.ParameterSetName]
+    if (! $__handlerInfo ) {
+        $__handlerInfo = $__outputHandlers["Default"] # Guaranteed to be present
+    }
+    $__handler = $__handlerInfo.Handler
+    if ( $PSCmdlet.ShouldProcess("files-cli.exe $__commandArgs")) {
+    # check for the application and throw if it cannot be found
+        if ( -not (Get-Command -ErrorAction Ignore "files-cli.exe")) {
+          throw "Cannot find executable 'files-cli.exe'"
+        }
+        if ( $__handlerInfo.StreamOutput ) {
+            if ( $null -eq $__handler ) {
+                & "files-cli.exe" $__commandArgs
+            }
+            else {
+                & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError | & $__handler
+            }
+        }
+        else {
+            $result = & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError
+            & $__handler $result
+        }
+    }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
+  } # end PROCESS
+
+<#
+.SYNOPSIS
+Interact with Files.com api
+
+.DESCRIPTION
+shows Api request logs
+
+.PARAMETER fields
+comma seperated fields. example   path,type
+
+
+.PARAMETER apikey
+String of API key
+
+
+.PARAMETER debugOutputPath
+File Path for debug log
+
+
+.PARAMETER CheckCliVersion
+'True' or 'False' strings can be used
+
+
+.PARAMETER output
+file path to save output
+
+
+.PARAMETER profile
+Specify the profile string that was previously set
+
+
+.PARAMETER reauthentication
+Specify the password
+
+
+.PARAMETER PerPage
+Number of records to show per page.  (Max: 10,000, 1,000 or less is recommended). Note there is no warning if there were more pages available. Set higher if you need to return more data.
+
+
+.PARAMETER MaxPages
+When per-page is set max-pages limits the total number of pages requested. Note there is no warning if there were more pages available. Set higher if you need to return more data.
+
+
+
+.LINK
+https://www.files.com/docs/integrations/command-line-interface-cli-app
+
+#>
+}
+
+
+function Get-FilesCliFtpActionLogs
+{
+[PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
+[CmdletBinding(ConfirmImpact='None',DefaultParameterSetName='Default')]
+
+param(
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[string]$fields,
+[Parameter()]
+[string]$apikey,
+[Parameter()]
+[string]$debugOutputPath,
+[Parameter()]
+[switch]$CheckCliVersion,
+[Parameter()]
+[string]$output,
+[Parameter()]
+[string]$profile,
+[Parameter()]
+[string]$reauthentication,
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[PSDefaultValue(Value="200")]
+[int]$PerPage = "200",
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[PSDefaultValue(Value="50")]
+[int]$MaxPages = "50"
+    )
+
+BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
+    $__PARAMETERMAP = @{
+         fields = @{
+               OriginalName = '--fields='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         apikey = @{
+               OriginalName = '--api-key='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         debugOutputPath = @{
+               OriginalName = '--debug='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         CheckCliVersion = @{
+               OriginalName = '--ignore-version-check=False'
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'switch'
+               ApplyToExecutable = $False
+               NoGap = $True
+               DefaultMissingValue = '--ignore-version-check=True'
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         output = @{
+               OriginalName = '--output='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         profile = @{
+               OriginalName = '--profile='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         reauthentication = @{
+               OriginalName = '--reauthentication='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         PerPage = @{
+               OriginalName = '--per-page='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'int'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         MaxPages = @{
+               OriginalName = '--max-pages='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'int'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+    }
+
+    $__outputHandlers = @{
+        Default = @{ StreamOutput = $False; Handler = 'privFilesCli_CommonJSONtoPSobjectHandler' }
+    }
+}
+
+PROCESS {
+    $__boundParameters = $PSBoundParameters
+    $__defaultValueParameters = $PSCmdlet.MyInvocation.MyCommand.Parameters.Values.Where({$_.Attributes.Where({$_.TypeId.Name -eq "PSDefaultValueAttribute"})}).Name
+    $__defaultValueParameters.Where({ !$__boundParameters["$_"] }).ForEach({$__boundParameters["$_"] = get-variable -value $_})
+    $__commandArgs = @()
+    $MyInvocation.MyCommand.Parameters.Values.Where({$_.SwitchParameter -and $_.Name -notmatch "Debug|Whatif|Confirm|Verbose" -and ! $__boundParameters[$_.Name]}).ForEach({$__boundParameters[$_.Name] = [switch]::new($false)})
+    if ($__boundParameters["Debug"]){wait-debugger}
+    $__commandArgs += 'ftp-action-logs'
+    $__commandArgs += 'list'
+    $__commandArgs += '--format=json,raw'
+    $__commandArgs += '--use-pager=False'
+    foreach ($paramName in $__boundParameters.Keys|
+            Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
+            Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
+        $value = $__boundParameters[$paramName]
+        $param = $__PARAMETERMAP[$paramName]
+        if ($param) {
+            if ($value -is [switch]) {
+                 if ($value.IsPresent) {
+                     if ($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                 }
+                 elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
+            }
+            elseif ( $param.NoGap ) {
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
+            }
+            else {
+                if($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                if($param.ArgumentTransformType -eq 'inline') {
+                   $transform = [scriptblock]::Create($param.ArgumentTransform)
+                }
+                else {
+                   $transform = $param.ArgumentTransform
+                }
+                $__commandArgs += & $transform $value
+            }
+        }
+    }
+    $__commandArgs = $__commandArgs | Where-Object {$_ -ne $null}
+    if ($__boundParameters["Debug"]){wait-debugger}
+    if ( $__boundParameters["Verbose"]) {
+         Write-Verbose -Verbose -Message "files-cli.exe"
+         $__commandArgs | Write-Verbose -Verbose
+    }
+    $__handlerInfo = $__outputHandlers[$PSCmdlet.ParameterSetName]
+    if (! $__handlerInfo ) {
+        $__handlerInfo = $__outputHandlers["Default"] # Guaranteed to be present
+    }
+    $__handler = $__handlerInfo.Handler
+    if ( $PSCmdlet.ShouldProcess("files-cli.exe $__commandArgs")) {
+    # check for the application and throw if it cannot be found
+        if ( -not (Get-Command -ErrorAction Ignore "files-cli.exe")) {
+          throw "Cannot find executable 'files-cli.exe'"
+        }
+        if ( $__handlerInfo.StreamOutput ) {
+            if ( $null -eq $__handler ) {
+                & "files-cli.exe" $__commandArgs
+            }
+            else {
+                & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError | & $__handler
+            }
+        }
+        else {
+            $result = & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError
+            & $__handler $result
+        }
+    }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
+  } # end PROCESS
+
+<#
+.SYNOPSIS
+Interact with Files.com api
+
+.DESCRIPTION
+shows ftp action logs
+
+.PARAMETER fields
+comma seperated fields. example   path,type
+
+
+.PARAMETER apikey
+String of API key
+
+
+.PARAMETER debugOutputPath
+File Path for debug log
+
+
+.PARAMETER CheckCliVersion
+'True' or 'False' strings can be used
+
+
+.PARAMETER output
+file path to save output
+
+
+.PARAMETER profile
+Specify the profile string that was previously set
+
+
+.PARAMETER reauthentication
+Specify the password
+
+
+.PARAMETER PerPage
+Number of records to show per page.  (Max: 10,000, 1,000 or less is recommended). Note there is no warning if there were more pages available. Set higher if you need to return more data.
+
+
+.PARAMETER MaxPages
+When per-page is set max-pages limits the total number of pages requested. Note there is no warning if there were more pages available. Set higher if you need to return more data.
+
+
+
+.LINK
+https://www.files.com/docs/integrations/command-line-interface-cli-app
+
+#>
+}
+
+
 function Get-FilesCliGroupsList
 {
 [PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
@@ -2288,6 +4510,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          ids = @{
                OriginalName = '--ids='
@@ -2390,6 +4614,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -2401,9 +4626,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -2446,6 +4682,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -2525,6 +4763,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          groupid = @{
                OriginalName = '--group-id='
@@ -2627,6 +4867,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -2638,9 +4879,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -2683,6 +4935,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -2762,6 +5016,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          userid = @{
                OriginalName = '--user-id='
@@ -2864,6 +5120,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -2875,9 +5132,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -2920,6 +5188,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -3008,6 +5278,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          cursor = @{
                OriginalName = '--cursor='
@@ -3150,6 +5422,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -3161,9 +5434,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -3206,6 +5490,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -3313,6 +5599,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          path = @{
                OriginalName = '--path='
@@ -3465,6 +5753,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -3476,9 +5765,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -3521,6 +5821,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -3632,6 +5934,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          path = @{
                OriginalName = '--path='
@@ -3784,6 +6088,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -3795,9 +6100,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -3840,6 +6156,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -3948,6 +6266,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          cursor = @{
                OriginalName = '--cursor='
@@ -4090,6 +6410,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -4101,9 +6422,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -4146,6 +6478,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -4238,6 +6572,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          HistoryExportID = @{
                OriginalName = '--id='
@@ -4340,6 +6676,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -4351,9 +6688,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -4396,6 +6744,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -4472,6 +6822,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          HistoryExportID = @{
                OriginalName = '--history-export-id='
@@ -4575,6 +6927,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -4586,9 +6939,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -4631,6 +6995,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -4704,6 +7070,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          fields = @{
                OriginalName = '--fields='
@@ -4796,6 +7164,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -4807,9 +7176,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -4852,6 +7232,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -4929,6 +7311,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          path = @{
                OriginalName = ''
@@ -5042,6 +7426,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -5053,9 +7438,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -5098,6 +7494,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -5117,6 +7515,290 @@ Fields to include in output
 
 .PARAMETER withpreviews
 Include file previews?
+
+
+.PARAMETER apikey
+String of API key
+
+
+.PARAMETER debugOutputPath
+File Path for debug log
+
+
+.PARAMETER CheckCliVersion
+'True' or 'False' strings can be used
+
+
+.PARAMETER output
+file path to save output
+
+
+.PARAMETER profile
+Specify the profile string that was previously set
+
+
+.PARAMETER reauthentication
+Specify the password
+
+
+
+.LINK
+https://www.files.com/docs/integrations/command-line-interface-cli-app
+
+#>
+}
+
+
+function Get-FilesCliNotifications
+{
+[PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
+[CmdletBinding(ConfirmImpact='None',DefaultParameterSetName='Default')]
+
+param(
+[Parameter(ValueFromPipelineByPropertyName=$true,ParameterSetName='Default')]
+[Parameter(ValueFromPipelineByPropertyName=$true,ParameterSetName='GlobalFlags')]
+[string]$path,
+[Parameter(ValueFromPipelineByPropertyName=$true,ParameterSetName='Default')]
+[Parameter(ValueFromPipelineByPropertyName=$true,ParameterSetName='GlobalFlags')]
+[string]$UserID,
+[Parameter(ValueFromPipelineByPropertyName=$true,ParameterSetName='Default')]
+[Parameter(ValueFromPipelineByPropertyName=$true,ParameterSetName='GlobalFlags')]
+[string]$GroupID,
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[switch]$ExcludeAncestors,
+[Parameter()]
+[string]$apikey,
+[Parameter()]
+[string]$debugOutputPath,
+[Parameter()]
+[switch]$CheckCliVersion,
+[Parameter()]
+[string]$output,
+[Parameter()]
+[string]$profile,
+[Parameter()]
+[string]$reauthentication
+    )
+
+BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
+    $__PARAMETERMAP = @{
+         path = @{
+               OriginalName = '--path='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         UserID = @{
+               OriginalName = '--user-id='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         GroupID = @{
+               OriginalName = '--group-id='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         ExcludeAncestors = @{
+               OriginalName = '--include-ancestors=false'
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'switch'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         apikey = @{
+               OriginalName = '--api-key='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         debugOutputPath = @{
+               OriginalName = '--debug='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         CheckCliVersion = @{
+               OriginalName = '--ignore-version-check=False'
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'switch'
+               ApplyToExecutable = $False
+               NoGap = $True
+               DefaultMissingValue = '--ignore-version-check=True'
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         output = @{
+               OriginalName = '--output='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         profile = @{
+               OriginalName = '--profile='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         reauthentication = @{
+               OriginalName = '--reauthentication='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+    }
+
+    $__outputHandlers = @{
+        Default = @{ StreamOutput = $False; Handler = 'privFilesCli_CommonJSONtoPSobjectHandler' }
+    }
+}
+
+PROCESS {
+    $__boundParameters = $PSBoundParameters
+    $__defaultValueParameters = $PSCmdlet.MyInvocation.MyCommand.Parameters.Values.Where({$_.Attributes.Where({$_.TypeId.Name -eq "PSDefaultValueAttribute"})}).Name
+    $__defaultValueParameters.Where({ !$__boundParameters["$_"] }).ForEach({$__boundParameters["$_"] = get-variable -value $_})
+    $__commandArgs = @()
+    $MyInvocation.MyCommand.Parameters.Values.Where({$_.SwitchParameter -and $_.Name -notmatch "Debug|Whatif|Confirm|Verbose" -and ! $__boundParameters[$_.Name]}).ForEach({$__boundParameters[$_.Name] = [switch]::new($false)})
+    if ($__boundParameters["Debug"]){wait-debugger}
+    $__commandArgs += 'notifications'
+    $__commandArgs += 'list'
+    $__commandArgs += '--format=json,raw'
+    $__commandArgs += '--use-pager=False'
+    foreach ($paramName in $__boundParameters.Keys|
+            Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
+            Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
+        $value = $__boundParameters[$paramName]
+        $param = $__PARAMETERMAP[$paramName]
+        if ($param) {
+            if ($value -is [switch]) {
+                 if ($value.IsPresent) {
+                     if ($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                 }
+                 elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
+            }
+            elseif ( $param.NoGap ) {
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
+            }
+            else {
+                if($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                if($param.ArgumentTransformType -eq 'inline') {
+                   $transform = [scriptblock]::Create($param.ArgumentTransform)
+                }
+                else {
+                   $transform = $param.ArgumentTransform
+                }
+                $__commandArgs += & $transform $value
+            }
+        }
+    }
+    $__commandArgs = $__commandArgs | Where-Object {$_ -ne $null}
+    if ($__boundParameters["Debug"]){wait-debugger}
+    if ( $__boundParameters["Verbose"]) {
+         Write-Verbose -Verbose -Message "files-cli.exe"
+         $__commandArgs | Write-Verbose -Verbose
+    }
+    $__handlerInfo = $__outputHandlers[$PSCmdlet.ParameterSetName]
+    if (! $__handlerInfo ) {
+        $__handlerInfo = $__outputHandlers["Default"] # Guaranteed to be present
+    }
+    $__handler = $__handlerInfo.Handler
+    if ( $PSCmdlet.ShouldProcess("files-cli.exe $__commandArgs")) {
+    # check for the application and throw if it cannot be found
+        if ( -not (Get-Command -ErrorAction Ignore "files-cli.exe")) {
+          throw "Cannot find executable 'files-cli.exe'"
+        }
+        if ( $__handlerInfo.StreamOutput ) {
+            if ( $null -eq $__handler ) {
+                & "files-cli.exe" $__commandArgs
+            }
+            else {
+                & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError | & $__handler
+            }
+        }
+        else {
+            $result = & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError
+            & $__handler $result
+        }
+    }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
+  } # end PROCESS
+
+<#
+.SYNOPSIS
+Interact with Files.com api
+
+.DESCRIPTION
+List behaviors in the site
+
+.PARAMETER path
+Specify the folder path
+
+
+.PARAMETER UserID
+Specify specific User ID
+
+
+.PARAMETER GroupID
+Specify specific GroupID
+
+
+.PARAMETER ExcludeAncestors
+Does not include notifications for any parent paths.
 
 
 .PARAMETER apikey
@@ -5187,6 +7869,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          DoNotRecurseGroups = @{
                OriginalName = '--include-groups=False'
@@ -5319,6 +8003,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -5330,9 +8015,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -5375,6 +8071,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -5465,6 +8163,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          id = @{
                OriginalName = '--id='
@@ -5567,6 +8267,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -5578,9 +8279,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -5623,6 +8335,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -5681,8 +8395,8 @@ param(
 [ValidateSet('AllFields','authentication_method','auth_account_name','auth_setup_link','auth_status','aws_access_key','aws_secret_key','azure_blob_storage_access_key','azure_blob_storage_account','azure_blob_storage_container','azure_blob_storage_sas_token','azure_files_storage_access_key','azure_files_storage_account','azure_files_storage_sas_token','azure_files_storage_share_name','backblaze_b2_application_key','backblaze_b2_bucket','backblaze_b2_key_id','backblaze_b2_s3_endpoint','disabled','enable_dedicated_ips','filebase_access_key','filebase_bucket','filebase_secret_key','files_agent_api_token','files_agent_permission_set','files_agent_root','google_cloud_storage_bucket','google_cloud_storage_credentials_json','google_cloud_storage_project_id','hostname','id','max_connections','name','one_drive_account_type','password','pinned_region','pin_to_site_region','port','private_key','private_key_passphrase','rackspace_api_key','rackspace_container','rackspace_region','rackspace_username','remote_home_path','reset_authentication','s3_bucket','s3_compatible_access_key','s3_compatible_bucket','s3_compatible_endpoint','s3_compatible_region','s3_compatible_secret_key','s3_region','server_certificate','server_host_key','server_type','ssl','ssl_certificate','username','wasabi_access_key','wasabi_bucket','wasabi_region','wasabi_secret_key')]
 [Parameter(Position=2,ParameterSetName='Default')]
 [Parameter(Position=2,ParameterSetName='GlobalFlags')]
-[PSDefaultValue(Value="id,name,server_type,remote_home_path,disabled,hostname,username,max_connections,authentication_method,enable_dedicated_ips,pin_to_site_region")]
-[string[]]$fields = "id,name,server_type,remote_home_path,disabled,hostname,username,max_connections,authentication_method,enable_dedicated_ips,pin_to_site_region",
+[PSDefaultValue(Value="id,name,server_type,remote_home_path,disabled,hostname,username,max_connections,authentication_method,enable_dedicated_ips,pin_to_site_region,server_host_key,port,server_certificate")]
+[string[]]$fields = "id,name,server_type,remote_home_path,disabled,hostname,username,max_connections,authentication_method,enable_dedicated_ips,pin_to_site_region,server_host_key,port,server_certificate",
 [Parameter()]
 [string]$apikey,
 [Parameter()]
@@ -5698,6 +8412,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          fields = @{
                OriginalName = ''
@@ -5790,6 +8506,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -5801,9 +8518,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -5846,6 +8574,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -5917,6 +8647,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          fields = @{
                OriginalName = ''
@@ -6009,6 +8741,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -6020,9 +8753,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -6065,6 +8809,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -6077,6 +8823,743 @@ lists the settings-changes in the site
 .PARAMETER fields
 Fields to include in output
 
+
+.PARAMETER apikey
+String of API key
+
+
+.PARAMETER debugOutputPath
+File Path for debug log
+
+
+.PARAMETER CheckCliVersion
+'True' or 'False' strings can be used
+
+
+.PARAMETER output
+file path to save output
+
+
+.PARAMETER profile
+Specify the profile string that was previously set
+
+
+.PARAMETER reauthentication
+Specify the password
+
+
+
+.LINK
+https://www.files.com/docs/integrations/command-line-interface-cli-app
+
+#>
+}
+
+
+function Get-FilesCliSftpActionLogs
+{
+[PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
+[CmdletBinding(ConfirmImpact='None',DefaultParameterSetName='Default')]
+
+param(
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[string]$fields,
+[Parameter()]
+[string]$apikey,
+[Parameter()]
+[string]$debugOutputPath,
+[Parameter()]
+[switch]$CheckCliVersion,
+[Parameter()]
+[string]$output,
+[Parameter()]
+[string]$profile,
+[Parameter()]
+[string]$reauthentication,
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[PSDefaultValue(Value="200")]
+[int]$PerPage = "200",
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[PSDefaultValue(Value="50")]
+[int]$MaxPages = "50"
+    )
+
+BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
+    $__PARAMETERMAP = @{
+         fields = @{
+               OriginalName = '--fields='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         apikey = @{
+               OriginalName = '--api-key='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         debugOutputPath = @{
+               OriginalName = '--debug='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         CheckCliVersion = @{
+               OriginalName = '--ignore-version-check=False'
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'switch'
+               ApplyToExecutable = $False
+               NoGap = $True
+               DefaultMissingValue = '--ignore-version-check=True'
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         output = @{
+               OriginalName = '--output='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         profile = @{
+               OriginalName = '--profile='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         reauthentication = @{
+               OriginalName = '--reauthentication='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         PerPage = @{
+               OriginalName = '--per-page='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'int'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         MaxPages = @{
+               OriginalName = '--max-pages='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'int'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+    }
+
+    $__outputHandlers = @{
+        Default = @{ StreamOutput = $False; Handler = 'privFilesCli_CommonJSONtoPSobjectHandler' }
+    }
+}
+
+PROCESS {
+    $__boundParameters = $PSBoundParameters
+    $__defaultValueParameters = $PSCmdlet.MyInvocation.MyCommand.Parameters.Values.Where({$_.Attributes.Where({$_.TypeId.Name -eq "PSDefaultValueAttribute"})}).Name
+    $__defaultValueParameters.Where({ !$__boundParameters["$_"] }).ForEach({$__boundParameters["$_"] = get-variable -value $_})
+    $__commandArgs = @()
+    $MyInvocation.MyCommand.Parameters.Values.Where({$_.SwitchParameter -and $_.Name -notmatch "Debug|Whatif|Confirm|Verbose" -and ! $__boundParameters[$_.Name]}).ForEach({$__boundParameters[$_.Name] = [switch]::new($false)})
+    if ($__boundParameters["Debug"]){wait-debugger}
+    $__commandArgs += 'sftp-action-logs'
+    $__commandArgs += 'list'
+    $__commandArgs += '--format=json,raw'
+    $__commandArgs += '--use-pager=False'
+    foreach ($paramName in $__boundParameters.Keys|
+            Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
+            Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
+        $value = $__boundParameters[$paramName]
+        $param = $__PARAMETERMAP[$paramName]
+        if ($param) {
+            if ($value -is [switch]) {
+                 if ($value.IsPresent) {
+                     if ($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                 }
+                 elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
+            }
+            elseif ( $param.NoGap ) {
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
+            }
+            else {
+                if($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                if($param.ArgumentTransformType -eq 'inline') {
+                   $transform = [scriptblock]::Create($param.ArgumentTransform)
+                }
+                else {
+                   $transform = $param.ArgumentTransform
+                }
+                $__commandArgs += & $transform $value
+            }
+        }
+    }
+    $__commandArgs = $__commandArgs | Where-Object {$_ -ne $null}
+    if ($__boundParameters["Debug"]){wait-debugger}
+    if ( $__boundParameters["Verbose"]) {
+         Write-Verbose -Verbose -Message "files-cli.exe"
+         $__commandArgs | Write-Verbose -Verbose
+    }
+    $__handlerInfo = $__outputHandlers[$PSCmdlet.ParameterSetName]
+    if (! $__handlerInfo ) {
+        $__handlerInfo = $__outputHandlers["Default"] # Guaranteed to be present
+    }
+    $__handler = $__handlerInfo.Handler
+    if ( $PSCmdlet.ShouldProcess("files-cli.exe $__commandArgs")) {
+    # check for the application and throw if it cannot be found
+        if ( -not (Get-Command -ErrorAction Ignore "files-cli.exe")) {
+          throw "Cannot find executable 'files-cli.exe'"
+        }
+        if ( $__handlerInfo.StreamOutput ) {
+            if ( $null -eq $__handler ) {
+                & "files-cli.exe" $__commandArgs
+            }
+            else {
+                & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError | & $__handler
+            }
+        }
+        else {
+            $result = & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError
+            & $__handler $result
+        }
+    }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
+  } # end PROCESS
+
+<#
+.SYNOPSIS
+Interact with Files.com api
+
+.DESCRIPTION
+shows sftp action logs
+
+.PARAMETER fields
+comma seperated fields. example   path,type
+
+
+.PARAMETER apikey
+String of API key
+
+
+.PARAMETER debugOutputPath
+File Path for debug log
+
+
+.PARAMETER CheckCliVersion
+'True' or 'False' strings can be used
+
+
+.PARAMETER output
+file path to save output
+
+
+.PARAMETER profile
+Specify the profile string that was previously set
+
+
+.PARAMETER reauthentication
+Specify the password
+
+
+.PARAMETER PerPage
+Number of records to show per page.  (Max: 10,000, 1,000 or less is recommended). Note there is no warning if there were more pages available. Set higher if you need to return more data.
+
+
+.PARAMETER MaxPages
+When per-page is set max-pages limits the total number of pages requested. Note there is no warning if there were more pages available. Set higher if you need to return more data.
+
+
+
+.LINK
+https://www.files.com/docs/integrations/command-line-interface-cli-app
+
+#>
+}
+
+
+function Get-FilesCliSyncLogs
+{
+[PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
+[CmdletBinding(ConfirmImpact='None',DefaultParameterSetName='Default')]
+
+param(
+[Parameter()]
+[string]$apikey,
+[Parameter()]
+[string]$debugOutputPath,
+[Parameter()]
+[switch]$CheckCliVersion,
+[Parameter()]
+[string]$output,
+[Parameter()]
+[string]$profile,
+[Parameter()]
+[string]$reauthentication,
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[PSDefaultValue(Value="200")]
+[int]$PerPage = "200",
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[PSDefaultValue(Value="50")]
+[int]$MaxPages = "50"
+    )
+
+BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
+    $__PARAMETERMAP = @{
+         apikey = @{
+               OriginalName = '--api-key='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         debugOutputPath = @{
+               OriginalName = '--debug='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         CheckCliVersion = @{
+               OriginalName = '--ignore-version-check=False'
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'switch'
+               ApplyToExecutable = $False
+               NoGap = $True
+               DefaultMissingValue = '--ignore-version-check=True'
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         output = @{
+               OriginalName = '--output='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         profile = @{
+               OriginalName = '--profile='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         reauthentication = @{
+               OriginalName = '--reauthentication='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         PerPage = @{
+               OriginalName = '--per-page='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'int'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         MaxPages = @{
+               OriginalName = '--max-pages='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'int'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+    }
+
+    $__outputHandlers = @{
+        Default = @{ StreamOutput = $False; Handler = 'privFilesCli_CommonJSONtoPSobjectHandler' }
+    }
+}
+
+PROCESS {
+    $__boundParameters = $PSBoundParameters
+    $__defaultValueParameters = $PSCmdlet.MyInvocation.MyCommand.Parameters.Values.Where({$_.Attributes.Where({$_.TypeId.Name -eq "PSDefaultValueAttribute"})}).Name
+    $__defaultValueParameters.Where({ !$__boundParameters["$_"] }).ForEach({$__boundParameters["$_"] = get-variable -value $_})
+    $__commandArgs = @()
+    $MyInvocation.MyCommand.Parameters.Values.Where({$_.SwitchParameter -and $_.Name -notmatch "Debug|Whatif|Confirm|Verbose" -and ! $__boundParameters[$_.Name]}).ForEach({$__boundParameters[$_.Name] = [switch]::new($false)})
+    if ($__boundParameters["Debug"]){wait-debugger}
+    $__commandArgs += 'sync-logs'
+    $__commandArgs += 'list'
+    $__commandArgs += '--format=json,raw'
+    $__commandArgs += '--use-pager=False'
+    foreach ($paramName in $__boundParameters.Keys|
+            Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
+            Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
+        $value = $__boundParameters[$paramName]
+        $param = $__PARAMETERMAP[$paramName]
+        if ($param) {
+            if ($value -is [switch]) {
+                 if ($value.IsPresent) {
+                     if ($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                 }
+                 elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
+            }
+            elseif ( $param.NoGap ) {
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
+            }
+            else {
+                if($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                if($param.ArgumentTransformType -eq 'inline') {
+                   $transform = [scriptblock]::Create($param.ArgumentTransform)
+                }
+                else {
+                   $transform = $param.ArgumentTransform
+                }
+                $__commandArgs += & $transform $value
+            }
+        }
+    }
+    $__commandArgs = $__commandArgs | Where-Object {$_ -ne $null}
+    if ($__boundParameters["Debug"]){wait-debugger}
+    if ( $__boundParameters["Verbose"]) {
+         Write-Verbose -Verbose -Message "files-cli.exe"
+         $__commandArgs | Write-Verbose -Verbose
+    }
+    $__handlerInfo = $__outputHandlers[$PSCmdlet.ParameterSetName]
+    if (! $__handlerInfo ) {
+        $__handlerInfo = $__outputHandlers["Default"] # Guaranteed to be present
+    }
+    $__handler = $__handlerInfo.Handler
+    if ( $PSCmdlet.ShouldProcess("files-cli.exe $__commandArgs")) {
+    # check for the application and throw if it cannot be found
+        if ( -not (Get-Command -ErrorAction Ignore "files-cli.exe")) {
+          throw "Cannot find executable 'files-cli.exe'"
+        }
+        if ( $__handlerInfo.StreamOutput ) {
+            if ( $null -eq $__handler ) {
+                & "files-cli.exe" $__commandArgs
+            }
+            else {
+                & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError | & $__handler
+            }
+        }
+        else {
+            $result = & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError
+            & $__handler $result
+        }
+    }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
+  } # end PROCESS
+
+<#
+.SYNOPSIS
+Interact with Files.com api
+
+.DESCRIPTION
+shows site logon history
+
+.PARAMETER apikey
+String of API key
+
+
+.PARAMETER debugOutputPath
+File Path for debug log
+
+
+.PARAMETER CheckCliVersion
+'True' or 'False' strings can be used
+
+
+.PARAMETER output
+file path to save output
+
+
+.PARAMETER profile
+Specify the profile string that was previously set
+
+
+.PARAMETER reauthentication
+Specify the password
+
+
+.PARAMETER PerPage
+Number of records to show per page.  (Max: 10,000, 1,000 or less is recommended). Note there is no warning if there were more pages available. Set higher if you need to return more data.
+
+
+.PARAMETER MaxPages
+When per-page is set max-pages limits the total number of pages requested. Note there is no warning if there were more pages available. Set higher if you need to return more data.
+
+
+
+.LINK
+https://www.files.com/docs/integrations/command-line-interface-cli-app
+
+#>
+}
+
+
+function Get-FilesCliUsageDailySnapshots
+{
+[PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
+[CmdletBinding(ConfirmImpact='None',DefaultParameterSetName='Default')]
+
+param(
+[Parameter()]
+[string]$apikey,
+[Parameter()]
+[string]$debugOutputPath,
+[Parameter()]
+[switch]$CheckCliVersion,
+[Parameter()]
+[string]$output,
+[Parameter()]
+[string]$profile,
+[Parameter()]
+[string]$reauthentication
+    )
+
+BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
+    $__PARAMETERMAP = @{
+         apikey = @{
+               OriginalName = '--api-key='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         debugOutputPath = @{
+               OriginalName = '--debug='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         CheckCliVersion = @{
+               OriginalName = '--ignore-version-check=False'
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'switch'
+               ApplyToExecutable = $False
+               NoGap = $True
+               DefaultMissingValue = '--ignore-version-check=True'
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         output = @{
+               OriginalName = '--output='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         profile = @{
+               OriginalName = '--profile='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         reauthentication = @{
+               OriginalName = '--reauthentication='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+    }
+
+    $__outputHandlers = @{
+        Default = @{ StreamOutput = $False; Handler = 'privFilesCli_CommonJSONtoPSobjectHandler' }
+    }
+}
+
+PROCESS {
+    $__boundParameters = $PSBoundParameters
+    $__defaultValueParameters = $PSCmdlet.MyInvocation.MyCommand.Parameters.Values.Where({$_.Attributes.Where({$_.TypeId.Name -eq "PSDefaultValueAttribute"})}).Name
+    $__defaultValueParameters.Where({ !$__boundParameters["$_"] }).ForEach({$__boundParameters["$_"] = get-variable -value $_})
+    $__commandArgs = @()
+    $MyInvocation.MyCommand.Parameters.Values.Where({$_.SwitchParameter -and $_.Name -notmatch "Debug|Whatif|Confirm|Verbose" -and ! $__boundParameters[$_.Name]}).ForEach({$__boundParameters[$_.Name] = [switch]::new($false)})
+    if ($__boundParameters["Debug"]){wait-debugger}
+    $__commandArgs += 'usage-daily-snapshots'
+    $__commandArgs += 'list'
+    $__commandArgs += '--format=json,raw'
+    $__commandArgs += '--use-pager=False'
+    foreach ($paramName in $__boundParameters.Keys|
+            Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
+            Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
+        $value = $__boundParameters[$paramName]
+        $param = $__PARAMETERMAP[$paramName]
+        if ($param) {
+            if ($value -is [switch]) {
+                 if ($value.IsPresent) {
+                     if ($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                 }
+                 elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
+            }
+            elseif ( $param.NoGap ) {
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
+            }
+            else {
+                if($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                if($param.ArgumentTransformType -eq 'inline') {
+                   $transform = [scriptblock]::Create($param.ArgumentTransform)
+                }
+                else {
+                   $transform = $param.ArgumentTransform
+                }
+                $__commandArgs += & $transform $value
+            }
+        }
+    }
+    $__commandArgs = $__commandArgs | Where-Object {$_ -ne $null}
+    if ($__boundParameters["Debug"]){wait-debugger}
+    if ( $__boundParameters["Verbose"]) {
+         Write-Verbose -Verbose -Message "files-cli.exe"
+         $__commandArgs | Write-Verbose -Verbose
+    }
+    $__handlerInfo = $__outputHandlers[$PSCmdlet.ParameterSetName]
+    if (! $__handlerInfo ) {
+        $__handlerInfo = $__outputHandlers["Default"] # Guaranteed to be present
+    }
+    $__handler = $__handlerInfo.Handler
+    if ( $PSCmdlet.ShouldProcess("files-cli.exe $__commandArgs")) {
+    # check for the application and throw if it cannot be found
+        if ( -not (Get-Command -ErrorAction Ignore "files-cli.exe")) {
+          throw "Cannot find executable 'files-cli.exe'"
+        }
+        if ( $__handlerInfo.StreamOutput ) {
+            if ( $null -eq $__handler ) {
+                & "files-cli.exe" $__commandArgs
+            }
+            else {
+                & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError | & $__handler
+            }
+        }
+        else {
+            $result = & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError
+            & $__handler $result
+        }
+    }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
+  } # end PROCESS
+
+<#
+.SYNOPSIS
+Interact with Files.com api
+
+.DESCRIPTION
+lists the usage-daily-snapshots in the site
 
 .PARAMETER apikey
 String of API key
@@ -6140,6 +9623,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          userid = @{
                OriginalName = '--id='
@@ -6242,6 +9727,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -6253,9 +9739,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -6298,6 +9795,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -6313,6 +9812,240 @@ User ID
 
 .PARAMETER fields
 Fields to include in output
+
+
+.PARAMETER apikey
+String of API key
+
+
+.PARAMETER debugOutputPath
+File Path for debug log
+
+
+.PARAMETER CheckCliVersion
+'True' or 'False' strings can be used
+
+
+.PARAMETER output
+file path to save output
+
+
+.PARAMETER profile
+Specify the profile string that was previously set
+
+
+.PARAMETER reauthentication
+Specify the password
+
+
+
+.LINK
+https://www.files.com/docs/integrations/command-line-interface-cli-app
+
+#>
+}
+
+
+function Get-FilesCliUserCipherUses
+{
+[PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
+[CmdletBinding(ConfirmImpact='None',DefaultParameterSetName='Default')]
+
+param(
+[Alias('id')]
+[Parameter(ValueFromPipelineByPropertyName=$true,ParameterSetName='Default')]
+[Parameter(ValueFromPipelineByPropertyName=$true,ParameterSetName='GlobalFlags')]
+[string]$UserID,
+[Parameter()]
+[string]$apikey,
+[Parameter()]
+[string]$debugOutputPath,
+[Parameter()]
+[switch]$CheckCliVersion,
+[Parameter()]
+[string]$output,
+[Parameter()]
+[string]$profile,
+[Parameter()]
+[string]$reauthentication
+    )
+
+BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
+    $__PARAMETERMAP = @{
+         UserID = @{
+               OriginalName = '--user-id='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         apikey = @{
+               OriginalName = '--api-key='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         debugOutputPath = @{
+               OriginalName = '--debug='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         CheckCliVersion = @{
+               OriginalName = '--ignore-version-check=False'
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'switch'
+               ApplyToExecutable = $False
+               NoGap = $True
+               DefaultMissingValue = '--ignore-version-check=True'
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         output = @{
+               OriginalName = '--output='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         profile = @{
+               OriginalName = '--profile='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         reauthentication = @{
+               OriginalName = '--reauthentication='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+    }
+
+    $__outputHandlers = @{
+        Default = @{ StreamOutput = $False; Handler = 'privFilesCli_UserOutPutHandler' }
+    }
+}
+
+PROCESS {
+    $__boundParameters = $PSBoundParameters
+    $__defaultValueParameters = $PSCmdlet.MyInvocation.MyCommand.Parameters.Values.Where({$_.Attributes.Where({$_.TypeId.Name -eq "PSDefaultValueAttribute"})}).Name
+    $__defaultValueParameters.Where({ !$__boundParameters["$_"] }).ForEach({$__boundParameters["$_"] = get-variable -value $_})
+    $__commandArgs = @()
+    $MyInvocation.MyCommand.Parameters.Values.Where({$_.SwitchParameter -and $_.Name -notmatch "Debug|Whatif|Confirm|Verbose" -and ! $__boundParameters[$_.Name]}).ForEach({$__boundParameters[$_.Name] = [switch]::new($false)})
+    if ($__boundParameters["Debug"]){wait-debugger}
+    $__commandArgs += 'user-cipher-uses'
+    $__commandArgs += 'list'
+    $__commandArgs += '--format=json,raw'
+    $__commandArgs += '--use-pager=False'
+    foreach ($paramName in $__boundParameters.Keys|
+            Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
+            Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
+        $value = $__boundParameters[$paramName]
+        $param = $__PARAMETERMAP[$paramName]
+        if ($param) {
+            if ($value -is [switch]) {
+                 if ($value.IsPresent) {
+                     if ($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                 }
+                 elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
+            }
+            elseif ( $param.NoGap ) {
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
+            }
+            else {
+                if($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                if($param.ArgumentTransformType -eq 'inline') {
+                   $transform = [scriptblock]::Create($param.ArgumentTransform)
+                }
+                else {
+                   $transform = $param.ArgumentTransform
+                }
+                $__commandArgs += & $transform $value
+            }
+        }
+    }
+    $__commandArgs = $__commandArgs | Where-Object {$_ -ne $null}
+    if ($__boundParameters["Debug"]){wait-debugger}
+    if ( $__boundParameters["Verbose"]) {
+         Write-Verbose -Verbose -Message "files-cli.exe"
+         $__commandArgs | Write-Verbose -Verbose
+    }
+    $__handlerInfo = $__outputHandlers[$PSCmdlet.ParameterSetName]
+    if (! $__handlerInfo ) {
+        $__handlerInfo = $__outputHandlers["Default"] # Guaranteed to be present
+    }
+    $__handler = $__handlerInfo.Handler
+    if ( $PSCmdlet.ShouldProcess("files-cli.exe $__commandArgs")) {
+    # check for the application and throw if it cannot be found
+        if ( -not (Get-Command -ErrorAction Ignore "files-cli.exe")) {
+          throw "Cannot find executable 'files-cli.exe'"
+        }
+        if ( $__handlerInfo.StreamOutput ) {
+            if ( $null -eq $__handler ) {
+                & "files-cli.exe" $__commandArgs
+            }
+            else {
+                & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError | & $__handler
+            }
+        }
+        else {
+            $result = & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError
+            & $__handler $result
+        }
+    }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
+  } # end PROCESS
+
+<#
+.SYNOPSIS
+Interact with Files.com api
+
+.DESCRIPTION
+List User Cipher Uses
+
+.PARAMETER UserID
+User ID.  Provide a value of 0 to operate the current session's user.
 
 
 .PARAMETER apikey
@@ -6374,6 +10107,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          ids = @{
                OriginalName = '--ids='
@@ -6476,6 +10211,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -6487,9 +10223,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -6532,6 +10279,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -6618,6 +10367,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          Source = @{
                OriginalName = ''
@@ -6750,6 +10501,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -6761,9 +10513,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -6806,6 +10569,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -6862,6 +10627,7 @@ Specify the password
 
 .EXAMPLE
 PS> Get-FilesCliChildItem -path /demo |Where-Object {$_.display_name -like "*.csv"} | New-FilesCliDownload -localpath C:\temp\localFilesDemoFolder
+ testnewline
 
 Lists out all objects in files.com /demo directory. Filters for files that are like '*csv' then downloads them
 
@@ -6908,6 +10674,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          path = @{
                OriginalName = '--path='
@@ -7030,6 +10798,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -7041,9 +10810,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -7086,6 +10866,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -7216,6 +10998,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          remotepath = @{
                OriginalName = ''
@@ -7397,6 +11181,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -7408,9 +11193,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -7453,6 +11249,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -7572,6 +11370,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          path = @{
                OriginalName = '--path='
@@ -7684,6 +11484,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -7695,9 +11496,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -7740,6 +11552,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -7886,6 +11700,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          QueryAction = @{
                OriginalName = '--query-action'
@@ -8198,6 +12014,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -8209,9 +12026,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -8254,6 +12082,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -8438,6 +12268,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          LocalPath = @{
                OriginalName = '--local-path='
@@ -8620,6 +12452,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -8631,9 +12464,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -8676,6 +12520,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -8805,6 +12651,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          path = @{
                OriginalName = ''
@@ -8966,6 +12814,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -8977,9 +12826,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -9022,6 +12882,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -9127,6 +12989,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          path = @{
                OriginalName = ''
@@ -9240,6 +13104,7 @@ PROCESS {
     $__commandArgs += '--use-pager=False'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -9251,9 +13116,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -9296,6 +13172,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -9374,6 +13252,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          subdomain = @{
                OriginalName = '--subdomain'
@@ -9472,6 +13352,7 @@ PROCESS {
     $__commandArgs += 'reset'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -9483,9 +13364,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -9528,6 +13420,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -9602,6 +13496,8 @@ param(
     )
 
 BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
          subdomain = @{
                OriginalName = '--subdomain'
@@ -9700,6 +13596,7 @@ PROCESS {
     $__commandArgs += 'set'
     foreach ($paramName in $__boundParameters.Keys|
             Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
             Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
         $value = $__boundParameters[$paramName]
         $param = $__PARAMETERMAP[$paramName]
@@ -9711,9 +13608,20 @@ PROCESS {
                  elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
             }
             elseif ( $param.NoGap ) {
-                $pFmt = "{0}{1}"
-                if($value -match "\s") { $pFmt = "{0}""{1}""" }
-                $__commandArgs += $pFmt -f $param.OriginalName, $value
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
             }
             else {
                 if($param.OriginalName) { $__commandArgs += $param.OriginalName }
@@ -9756,6 +13664,8 @@ PROCESS {
             & $__handler $result
         }
     }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
   } # end PROCESS
 
 <#
@@ -9869,9 +13779,9 @@ function privFilesCli_UserOutPutHandler {
     PROCESS {
         if ($args[0]) {
             $output_PSObject = $args[0] | ConvertFrom-Json | ForEach-Object {
-                if ($_.admin_ids) {$_.admin_ids = $_.admin_ids.split(',')}
-                if ($_.usernames) {$_.usernames = $_.usernames.split(',')}
-                if ($_.user_ids) {$_.user_ids = $_.user_ids.split(',')}
+                if ($_.admin_ids) { $_.admin_ids = $_.admin_ids.split(',') }
+                if ($_.usernames) { $_.usernames = $_.usernames.split(',') }
+                if ($_.user_ids) { $_.user_ids = $_.user_ids.split(',') }
                 $_ 
             }
             if ($output_PSObject.status -eq "errored") {

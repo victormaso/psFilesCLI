@@ -1,10 +1,10 @@
 
 $Scripthome = $PSScriptRoot
 
-$moduleFolder = "$PSScriptRoot/psFilesCli"
+$moduleFolder = "$Scripthome/psFilesCli"
 
-$CrecendoBuildersCompletePath = "$Scripthome/CrecendoCommandConfigsComplete"
-$CrecendoBuildersPath = "$Scripthome/CrescendoCommandConfigs"
+$CrescendoBuildersCompletePath = "$Scripthome/CrescendoCommandConfigsComplete"
+$CrescendoCommandsPath = "$Scripthome/CrescendoCommandConfigs"
 $CrescendoBuildersPath = "$Scripthome/CrescendoBuilders"
 
 . "$Scripthome\Build_Functions.ps1"
@@ -13,12 +13,13 @@ $globalFlagsParameters = (Get-Content "$CrescendoBuildersPath/GlobalFlags.json" 
 $StartAndEndFlagsParameters = (Get-Content "$CrescendoBuildersPath/StartAndEndFlags.json" | ConvertFrom-Json).commands.parameters
 $APIPagingParameters = (Get-Content "$CrescendoBuildersPath/APIPaging.json" | ConvertFrom-Json).commands.parameters
 
-$CrecendoBuilderFiles = Get-ChildItem $CrecendoBuildersPath -Recurse -File
+$CrescendoBuilderFiles = Get-ChildItem $CrescendoCommandsPath -Recurse -File
 
+new-item -ItemType Directory -Path $CrescendoBuildersCompletePath -ErrorAction SilentlyContinue
+Get-ChildItem $CrescendoBuildersCompletePath | Where-Object { $_.FullName -match 'CrescendoCommandConfigsComplete(/|\\)CrescendoComplete_' } | Remove-Item -Force
 
-Get-ChildItem $CrecendoBuildersCompletePath | Where-Object { $_.FullName -match 'CrecendoCommandConfigsComplete(/|\\)CrecendoComplete_' } | Remove-Item -Force
-
-$CrecendoBuilderFiles | ForEach-Object {
+$CrescendoBuilderFiles | ForEach-Object {
+    write-host "$($_.fullname)"
     $psobjectofCresendoCommandConfig = (Get-Content $_.FullName | ConvertFrom-Json)
 
     $commandConfig = Import-CommandConfiguration $_.FullName 
@@ -28,8 +29,8 @@ $CrecendoBuilderFiles | ForEach-Object {
     if ($psobjectofCresendoCommandConfig.AdditionalCrescendoBuilders -contains "APIPaging") { $commandConfig.Parameters += $APIPagingParameters }
 
 
-    Export-CrescendoCommand -command $commandConfig -fileName "$CrecendoBuildersCompletePath/CrecendoComplete_$($_.Name)" -Force
+    Export-CrescendoCommand -command $commandConfig -fileName "$CrescendoBuildersCompletePath/CrescendoComplete_$($_.Name)" -Force
 }
 
-Export-CrescendoModule -ConfigurationFile @((Get-ChildItem $CrecendoBuildersCompletePath).fullname) -ModuleName "$moduleFolder/psFilesCli.psm1" -Force
+Export-CrescendoModule -ConfigurationFile @((Get-ChildItem $CrescendoBuildersCompletePath).fullname) -ModuleName "$moduleFolder/psFilesCli.psm1" -Force
 

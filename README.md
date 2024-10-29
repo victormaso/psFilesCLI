@@ -6,7 +6,7 @@ PowerShell module built with Crescendo for wrapping files-cli.exe commands to in
 - Force files-cli json output to provide PSObject Output for all Functions
 - Provide default flags that feel familiar to a PowerShell developer
 - Include help and examples to improve built in documentation
-- Use Crescendo to generate all Functions. Will not modify the psm1 after Crescendo has generated it. If any functionality is needed will reach out for feature request from Crecendo git issues page first before having any post generated module modification scripts.
+- Use Crescendo to generate all Functions. Will not modify the psm1 after Crescendo has generated it. If any functionality is needed will reach out for feature request from Crescendo git issues page first before having any post generated module modification scripts.
 - Build.ps1 to automate repeated parameters to improve consistency in generation of Crescendo JSON.
 - Use Crescendo handlers to sanitize inputs and allow for flexibility with passing in parameters. For example allow use of [datetime] in time parameters rather than needing to use strings of how files-cli expects it to be formatted
 - Only show common fields in output by default. Allow for the option of all available fields if needed.

@@ -66,12 +66,13 @@
           "NoGap": true,
           "OriginalName": "--concurrent-directory-list-limit=",
           "Name": "ConcurrentDirectoryListLimit",
+          "DefaultValue": "10",
           "ParameterType": "int",
           "ParameterSetName": [
             "Default",
             "GlobalFlags"
           ],
-          "Description": "Limit the concurrent directory listings of remote directories. (default 75)"
+          "Description": "Limit the concurrent directory listings of remote directories. (default 10) increasing to high can sometimes cause inaccurate results on remote mounts"
         },
         {
           "NoGap": true,

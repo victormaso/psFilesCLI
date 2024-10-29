@@ -8,10 +8,32 @@ function privFilesCli_FieldsArrayToCommaSeparated {
     }
 }
 
+function privFilesCli_ScheduleObject {
+    param ($v)
+    
+    if ($v.days_of_week -AND $v.time_zone -AND $v.times_of_day) {
+        Write-Verbose "Schedule object has required members"
+        $customobject=[PSCustomObject]@{
+            days_of_week = $v.days_of_week
+            time_zone    = $v.time_zone
+            times_of_day = $v.times_of_day
+        }
+        $customobject |ConvertTo-Json -Compress -Depth 4
+    } else {
+        throw "Schedule object require days_of_week -AND time_zone -AND times_of_day."
+    }
+    #example json {"days_of_week":[0,1,2,3,4,5,6],"time_zone":"Central Time (US & Canada)","times_of_day":["00:44","01:44","02:44","03:44","04:44","05:44","06:44","07:44","08:44","09:44","10:44","11:44","12:44","13:44","14:44","15:44","16:44","17:44","18:44","19:44","20:44","21:44","22:44","23:44"]}
+}
+
 function privFilesCli_ArrayToCommaSeparated {
-    param($v) 
+    param([string[]]$v) 
     $valuestring = ($v -join '","')
-    '"' + $valuestring + '"'
+    '"["' + $valuestring + '"]"'
+}
+function privFilesCli_ArrayToCommaSeparatedInt {
+    param([int[]]$v) 
+    $valuestring = ($v -join ',')
+    '"[' + $valuestring + ']"'
 }
 
 function privFilesCli_DateTimeToGMTFilesFormat {

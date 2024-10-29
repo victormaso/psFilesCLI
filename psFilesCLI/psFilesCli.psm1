@@ -1,7 +1,7 @@
 # Module created by Microsoft.PowerShell.Crescendo
 # Version: 1.1.0
 # Schema: https://aka.ms/PowerShell/Crescendo/Schemas/2022-06
-# Generated at: 05/23/2024 10:52:07
+# Generated at: 10/28/2024 16:25:34
 class PowerShellCustomFunctionAttribute : System.Attribute {
     [bool]$RequiresElevation
     [string]$Source
@@ -1105,6 +1105,279 @@ function Get-FilesCliAutomationLogs
 param(
 [Parameter(ParameterSetName='Default')]
 [Parameter(ParameterSetName='GlobalFlags')]
+[string]$fields,
+[Parameter()]
+[string]$apikey,
+[Parameter()]
+[string]$debugOutputPath,
+[Parameter()]
+[switch]$CheckCliVersion,
+[Parameter()]
+[string]$output,
+[Parameter()]
+[string]$profile,
+[Parameter()]
+[string]$reauthentication,
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[PSDefaultValue(Value="200")]
+[int]$PerPage = "200",
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[PSDefaultValue(Value="50")]
+[int]$MaxPages = "50"
+    )
+
+BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
+    $__PARAMETERMAP = @{
+         fields = @{
+               OriginalName = '--fields='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         apikey = @{
+               OriginalName = '--api-key='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         debugOutputPath = @{
+               OriginalName = '--debug='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         CheckCliVersion = @{
+               OriginalName = '--ignore-version-check=False'
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'switch'
+               ApplyToExecutable = $False
+               NoGap = $True
+               DefaultMissingValue = '--ignore-version-check=True'
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         output = @{
+               OriginalName = '--output='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         profile = @{
+               OriginalName = '--profile='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         reauthentication = @{
+               OriginalName = '--reauthentication='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         PerPage = @{
+               OriginalName = '--per-page='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'int'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         MaxPages = @{
+               OriginalName = '--max-pages='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'int'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+    }
+
+    $__outputHandlers = @{
+        Default = @{ StreamOutput = $False; Handler = 'privFilesCli_CommonJSONtoPSobjectHandler' }
+    }
+}
+
+PROCESS {
+    $__boundParameters = $PSBoundParameters
+    $__defaultValueParameters = $PSCmdlet.MyInvocation.MyCommand.Parameters.Values.Where({$_.Attributes.Where({$_.TypeId.Name -eq "PSDefaultValueAttribute"})}).Name
+    $__defaultValueParameters.Where({ !$__boundParameters["$_"] }).ForEach({$__boundParameters["$_"] = get-variable -value $_})
+    $__commandArgs = @()
+    $MyInvocation.MyCommand.Parameters.Values.Where({$_.SwitchParameter -and $_.Name -notmatch "Debug|Whatif|Confirm|Verbose" -and ! $__boundParameters[$_.Name]}).ForEach({$__boundParameters[$_.Name] = [switch]::new($false)})
+    if ($__boundParameters["Debug"]){wait-debugger}
+    $__commandArgs += 'automation-logs'
+    $__commandArgs += 'list'
+    $__commandArgs += '--format=json,raw'
+    $__commandArgs += '--use-pager=False'
+    foreach ($paramName in $__boundParameters.Keys|
+            Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
+            Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
+        $value = $__boundParameters[$paramName]
+        $param = $__PARAMETERMAP[$paramName]
+        if ($param) {
+            if ($value -is [switch]) {
+                 if ($value.IsPresent) {
+                     if ($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                 }
+                 elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
+            }
+            elseif ( $param.NoGap ) {
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
+            }
+            else {
+                if($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                if($param.ArgumentTransformType -eq 'inline') {
+                   $transform = [scriptblock]::Create($param.ArgumentTransform)
+                }
+                else {
+                   $transform = $param.ArgumentTransform
+                }
+                $__commandArgs += & $transform $value
+            }
+        }
+    }
+    $__commandArgs = $__commandArgs | Where-Object {$_ -ne $null}
+    if ($__boundParameters["Debug"]){wait-debugger}
+    if ( $__boundParameters["Verbose"]) {
+         Write-Verbose -Verbose -Message "files-cli.exe"
+         $__commandArgs | Write-Verbose -Verbose
+    }
+    $__handlerInfo = $__outputHandlers[$PSCmdlet.ParameterSetName]
+    if (! $__handlerInfo ) {
+        $__handlerInfo = $__outputHandlers["Default"] # Guaranteed to be present
+    }
+    $__handler = $__handlerInfo.Handler
+    if ( $PSCmdlet.ShouldProcess("files-cli.exe $__commandArgs")) {
+    # check for the application and throw if it cannot be found
+        if ( -not (Get-Command -ErrorAction Ignore "files-cli.exe")) {
+          throw "Cannot find executable 'files-cli.exe'"
+        }
+        if ( $__handlerInfo.StreamOutput ) {
+            if ( $null -eq $__handler ) {
+                & "files-cli.exe" $__commandArgs
+            }
+            else {
+                & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError | & $__handler
+            }
+        }
+        else {
+            $result = & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError
+            & $__handler $result
+        }
+    }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
+  } # end PROCESS
+
+<#
+.SYNOPSIS
+Interact with Files.com api
+
+.DESCRIPTION
+An AutomationLog is an audit log for monitoring and troubleshooting triggered Automation.
+
+.PARAMETER fields
+comma seperated fields. example   path,type
+
+
+.PARAMETER apikey
+String of API key
+
+
+.PARAMETER debugOutputPath
+File Path for debug log
+
+
+.PARAMETER CheckCliVersion
+'True' or 'False' strings can be used
+
+
+.PARAMETER output
+file path to save output
+
+
+.PARAMETER profile
+Specify the profile string that was previously set
+
+
+.PARAMETER reauthentication
+Specify the password
+
+
+.PARAMETER PerPage
+Number of records to show per page.  (Max: 10,000, 1,000 or less is recommended). Note there is no warning if there were more pages available. Set higher if you need to return more data.
+
+
+.PARAMETER MaxPages
+When per-page is set max-pages limits the total number of pages requested. Note there is no warning if there were more pages available. Set higher if you need to return more data.
+
+
+
+.LINK
+https://www.files.com/docs/integrations/command-line-interface-cli-app
+
+#>
+}
+
+
+function Get-FilesCliAutomationRuns
+{
+[PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
+[CmdletBinding(ConfirmImpact='None',DefaultParameterSetName='Default')]
+
+param(
+[Alias('id')]
+[Parameter(ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='Default')]
+[Parameter(ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='GlobalFlags')]
+[int]$automationRunId,
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
 [string[]]$fields,
 [Parameter()]
 [string]$apikey,
@@ -1132,6 +1405,16 @@ BEGIN {
     $PSNativeCommandUseErrorActionPreference = $false
     $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
     $__PARAMETERMAP = @{
+         automationRunId = @{
+               OriginalName = '--id='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'int'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
          fields = @{
                OriginalName = ''
                OriginalPosition = '0'
@@ -1320,7 +1603,11 @@ PROCESS {
 Interact with Files.com api
 
 .DESCRIPTION
-Automation Run Logs
+Automation Runs logs
+
+.PARAMETER automationRunId
+Automation Run ID
+
 
 .PARAMETER fields
 comma seperated fields. example   path,type
@@ -2639,7 +2926,8 @@ param(
 [switch]$OnlyFolders,
 [Parameter(ParameterSetName='Default')]
 [Parameter(ParameterSetName='GlobalFlags')]
-[int]$ConcurrentDirectoryListLimit,
+[PSDefaultValue(Value="10")]
+[int]$ConcurrentDirectoryListLimit = "10",
 [Parameter(ParameterSetName='Default')]
 [Parameter(ParameterSetName='GlobalFlags')]
 [string]$filter,
@@ -2913,7 +3201,7 @@ only return folders and not files
 
 
 .PARAMETER ConcurrentDirectoryListLimit
-Limit the concurrent directory listings of remote directories. (default 75)
+Limit the concurrent directory listings of remote directories. (default 10) increasing to high can sometimes cause inaccurate results on remote mounts
 
 
 .PARAMETER filter
@@ -7833,6 +8121,275 @@ https://www.files.com/docs/integrations/command-line-interface-cli-app
 }
 
 
+function Get-FilesCliOutboundConnectionLogs
+{
+[PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
+[CmdletBinding(ConfirmImpact='None',DefaultParameterSetName='Default')]
+
+param(
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[string]$fields,
+[Parameter()]
+[string]$apikey,
+[Parameter()]
+[string]$debugOutputPath,
+[Parameter()]
+[switch]$CheckCliVersion,
+[Parameter()]
+[string]$output,
+[Parameter()]
+[string]$profile,
+[Parameter()]
+[string]$reauthentication,
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[PSDefaultValue(Value="200")]
+[int]$PerPage = "200",
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[PSDefaultValue(Value="50")]
+[int]$MaxPages = "50"
+    )
+
+BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
+    $__PARAMETERMAP = @{
+         fields = @{
+               OriginalName = '--fields='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         apikey = @{
+               OriginalName = '--api-key='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         debugOutputPath = @{
+               OriginalName = '--debug='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         CheckCliVersion = @{
+               OriginalName = '--ignore-version-check=False'
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'switch'
+               ApplyToExecutable = $False
+               NoGap = $True
+               DefaultMissingValue = '--ignore-version-check=True'
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         output = @{
+               OriginalName = '--output='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         profile = @{
+               OriginalName = '--profile='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         reauthentication = @{
+               OriginalName = '--reauthentication='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         PerPage = @{
+               OriginalName = '--per-page='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'int'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         MaxPages = @{
+               OriginalName = '--max-pages='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'int'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+    }
+
+    $__outputHandlers = @{
+        Default = @{ StreamOutput = $False; Handler = 'privFilesCli_CommonJSONtoPSobjectHandler' }
+    }
+}
+
+PROCESS {
+    $__boundParameters = $PSBoundParameters
+    $__defaultValueParameters = $PSCmdlet.MyInvocation.MyCommand.Parameters.Values.Where({$_.Attributes.Where({$_.TypeId.Name -eq "PSDefaultValueAttribute"})}).Name
+    $__defaultValueParameters.Where({ !$__boundParameters["$_"] }).ForEach({$__boundParameters["$_"] = get-variable -value $_})
+    $__commandArgs = @()
+    $MyInvocation.MyCommand.Parameters.Values.Where({$_.SwitchParameter -and $_.Name -notmatch "Debug|Whatif|Confirm|Verbose" -and ! $__boundParameters[$_.Name]}).ForEach({$__boundParameters[$_.Name] = [switch]::new($false)})
+    if ($__boundParameters["Debug"]){wait-debugger}
+    $__commandArgs += 'outbound-connection-logs'
+    $__commandArgs += 'list'
+    $__commandArgs += '--format=json,raw'
+    $__commandArgs += '--use-pager=False'
+    foreach ($paramName in $__boundParameters.Keys|
+            Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
+            Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
+        $value = $__boundParameters[$paramName]
+        $param = $__PARAMETERMAP[$paramName]
+        if ($param) {
+            if ($value -is [switch]) {
+                 if ($value.IsPresent) {
+                     if ($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                 }
+                 elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
+            }
+            elseif ( $param.NoGap ) {
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
+            }
+            else {
+                if($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                if($param.ArgumentTransformType -eq 'inline') {
+                   $transform = [scriptblock]::Create($param.ArgumentTransform)
+                }
+                else {
+                   $transform = $param.ArgumentTransform
+                }
+                $__commandArgs += & $transform $value
+            }
+        }
+    }
+    $__commandArgs = $__commandArgs | Where-Object {$_ -ne $null}
+    if ($__boundParameters["Debug"]){wait-debugger}
+    if ( $__boundParameters["Verbose"]) {
+         Write-Verbose -Verbose -Message "files-cli.exe"
+         $__commandArgs | Write-Verbose -Verbose
+    }
+    $__handlerInfo = $__outputHandlers[$PSCmdlet.ParameterSetName]
+    if (! $__handlerInfo ) {
+        $__handlerInfo = $__outputHandlers["Default"] # Guaranteed to be present
+    }
+    $__handler = $__handlerInfo.Handler
+    if ( $PSCmdlet.ShouldProcess("files-cli.exe $__commandArgs")) {
+    # check for the application and throw if it cannot be found
+        if ( -not (Get-Command -ErrorAction Ignore "files-cli.exe")) {
+          throw "Cannot find executable 'files-cli.exe'"
+        }
+        if ( $__handlerInfo.StreamOutput ) {
+            if ( $null -eq $__handler ) {
+                & "files-cli.exe" $__commandArgs
+            }
+            else {
+                & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError | & $__handler
+            }
+        }
+        else {
+            $result = & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError
+            & $__handler $result
+        }
+    }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
+  } # end PROCESS
+
+<#
+.SYNOPSIS
+Interact with Files.com api
+
+.DESCRIPTION
+An OutboundConnectionLog is an audit log for monitoring and troubleshooting actions performed by your Remote Servers and Files.com on-premise Agents.
+
+.PARAMETER fields
+comma seperated fields. example   path,type
+
+
+.PARAMETER apikey
+String of API key
+
+
+.PARAMETER debugOutputPath
+File Path for debug log
+
+
+.PARAMETER CheckCliVersion
+'True' or 'False' strings can be used
+
+
+.PARAMETER output
+file path to save output
+
+
+.PARAMETER profile
+Specify the profile string that was previously set
+
+
+.PARAMETER reauthentication
+Specify the password
+
+
+.PARAMETER PerPage
+Number of records to show per page.  (Max: 10,000, 1,000 or less is recommended). Note there is no warning if there were more pages available. Set higher if you need to return more data.
+
+
+.PARAMETER MaxPages
+When per-page is set max-pages limits the total number of pages requested. Note there is no warning if there were more pages available. Set higher if you need to return more data.
+
+
+
+.LINK
+https://www.files.com/docs/integrations/command-line-interface-cli-app
+
+#>
+}
+
+
 function Get-FilesCliPermissionList
 {
 [PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
@@ -10627,9 +11184,484 @@ Specify the password
 
 .EXAMPLE
 PS> Get-FilesCliChildItem -path /demo |Where-Object {$_.display_name -like "*.csv"} | New-FilesCliDownload -localpath C:\temp\localFilesDemoFolder
- testnewline
 
 Lists out all objects in files.com /demo directory. Filters for files that are like '*csv' then downloads them
+
+
+.LINK
+https://www.files.com/docs/integrations/command-line-interface-cli-app
+
+#>
+}
+
+
+function New-FilesCliAutomation
+{
+[PowerShellCustomFunctionAttribute(RequiresElevation=$False)]
+[CmdletBinding(ConfirmImpact='None',DefaultParameterSetName='Default')]
+
+param(
+[Parameter(Mandatory=$true,ParameterSetName='Default')]
+[Parameter(Mandatory=$true,ParameterSetName='GlobalFlags')]
+[string]$name,
+[Parameter(Mandatory=$true,ParameterSetName='Default')]
+[Parameter(Mandatory=$true,ParameterSetName='GlobalFlags')]
+[string]$path,
+[ValidateSet('true','false')]
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[string]$Disabled,
+[Parameter(Mandatory=$true,ParameterSetName='Default')]
+[Parameter(Mandatory=$true,ParameterSetName='GlobalFlags')]
+[string[]]$destinations,
+[ValidateSet('create_folder','delete_file','attachment_file','copy_file','move_file','as2_send','run_sync')]
+[Parameter(Mandatory=$true,ParameterSetName='Default')]
+[Parameter(Mandatory=$true,ParameterSetName='GlobalFlags')]
+[string]$AutomationType,
+[ValidateSet('day','week','week_end','month','month_end','quarter','quarter_end','year','year_end')]
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[string]$Interval,
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[int]$RecurringDay,
+[ValidateSet('daily','custom_schedule','webhook','email','action')]
+[Parameter(Mandatory=$true,ParameterSetName='Default')]
+[Parameter(Mandatory=$true,ParameterSetName='GlobalFlags')]
+[string]$Trigger,
+[ValidateSet('create','read','update','destroy','move','copy')]
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[string[]]$TriggerActions,
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[string]$DestinationReplaceFrom,
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[string]$DestinationReplaceTo,
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[int[]]$ScheduleDaysOfWeek,
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[string[]]$ScheduleTimesOfDay,
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[string]$ScheduleTimeZone,
+[Parameter(ParameterSetName='Default')]
+[Parameter(ParameterSetName='GlobalFlags')]
+[string[]]$fields,
+[Parameter()]
+[string]$apikey,
+[Parameter()]
+[string]$debugOutputPath,
+[Parameter()]
+[switch]$CheckCliVersion,
+[Parameter()]
+[string]$output,
+[Parameter()]
+[string]$profile,
+[Parameter()]
+[string]$reauthentication
+    )
+
+BEGIN {
+    $PSNativeCommandUseErrorActionPreference = $false
+    $__CrescendoNativeErrorQueue = [System.Collections.Queue]::new()
+    $__PARAMETERMAP = @{
+         name = @{
+               OriginalName = '--name='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         path = @{
+               OriginalName = '--path='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = 'param([string[]]$v)'''+ $v +''' '
+               ArgumentTransformType = 'Inline'
+               }
+         Disabled = @{
+               OriginalName = '--disabled='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         destinations = @{
+               OriginalName = '--destinations'
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string[]'
+               ApplyToExecutable = $False
+               NoGap = $False
+               ArgumentTransform = 'privFilesCli_ArrayToCommaSeparated'
+               ArgumentTransformType = 'Function'
+               }
+         AutomationType = @{
+               OriginalName = '--automation='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         Interval = @{
+               OriginalName = '--interval='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         RecurringDay = @{
+               OriginalName = '--recurring-day='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'int'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         Trigger = @{
+               OriginalName = '--trigger='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         TriggerActions = @{
+               OriginalName = '--trigger-actions'
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string[]'
+               ApplyToExecutable = $False
+               NoGap = $False
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         DestinationReplaceFrom = @{
+               OriginalName = '--destination-replace-from='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         DestinationReplaceTo = @{
+               OriginalName = '--destination-replace-to='
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         ScheduleDaysOfWeek = @{
+               OriginalName = '--schedule-days-of-week'
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'int[]'
+               ApplyToExecutable = $False
+               NoGap = $False
+               ArgumentTransform = 'privFilesCli_ArrayToCommaSeparatedInt'
+               ArgumentTransformType = 'Function'
+               }
+         ScheduleTimesOfDay = @{
+               OriginalName = '--schedule-times-of-day'
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string[]'
+               ApplyToExecutable = $False
+               NoGap = $False
+               ArgumentTransform = 'privFilesCli_ArrayToCommaSeparated'
+               ArgumentTransformType = 'Function'
+               }
+         ScheduleTimeZone = @{
+               OriginalName = '--schedule-time-zone'
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $False
+               ArgumentTransform = 'privFilesCli_ArrayToCommaSeparated'
+               ArgumentTransformType = 'Function'
+               }
+         fields = @{
+               OriginalName = ''
+               OriginalPosition = '0'
+               Position = '2147483647'
+               ParameterType = 'string[]'
+               ApplyToExecutable = $False
+               NoGap = $False
+               ArgumentTransform = 'privFilesCli_FieldsArrayToCommaSeparated'
+               ArgumentTransformType = 'Function'
+               }
+         apikey = @{
+               OriginalName = '--api-key='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         debugOutputPath = @{
+               OriginalName = '--debug='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         CheckCliVersion = @{
+               OriginalName = '--ignore-version-check=False'
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'switch'
+               ApplyToExecutable = $False
+               NoGap = $True
+               DefaultMissingValue = '--ignore-version-check=True'
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         output = @{
+               OriginalName = '--output='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         profile = @{
+               OriginalName = '--profile='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+         reauthentication = @{
+               OriginalName = '--reauthentication='
+               OriginalPosition = '3'
+               Position = '2147483647'
+               ParameterType = 'string'
+               ApplyToExecutable = $False
+               NoGap = $True
+               ArgumentTransform = '$args'
+               ArgumentTransformType = 'inline'
+               }
+    }
+
+    $__outputHandlers = @{
+        Default = @{ StreamOutput = $False; Handler = 'privFilesCli_CommonJSONtoPSobjectHandler' }
+    }
+}
+
+PROCESS {
+    $__boundParameters = $PSBoundParameters
+    $__defaultValueParameters = $PSCmdlet.MyInvocation.MyCommand.Parameters.Values.Where({$_.Attributes.Where({$_.TypeId.Name -eq "PSDefaultValueAttribute"})}).Name
+    $__defaultValueParameters.Where({ !$__boundParameters["$_"] }).ForEach({$__boundParameters["$_"] = get-variable -value $_})
+    $__commandArgs = @()
+    $MyInvocation.MyCommand.Parameters.Values.Where({$_.SwitchParameter -and $_.Name -notmatch "Debug|Whatif|Confirm|Verbose" -and ! $__boundParameters[$_.Name]}).ForEach({$__boundParameters[$_.Name] = [switch]::new($false)})
+    if ($__boundParameters["Debug"]){wait-debugger}
+    $__commandArgs += 'automations'
+    $__commandArgs += 'create'
+    $__commandArgs += '--format=json,raw'
+    $__commandArgs += '--use-pager=False'
+    foreach ($paramName in $__boundParameters.Keys|
+            Where-Object {!$__PARAMETERMAP[$_].ApplyToExecutable}|
+            Where-Object {!$__PARAMETERMAP[$_].ExcludeAsArgument}|
+            Sort-Object {$__PARAMETERMAP[$_].OriginalPosition}) {
+        $value = $__boundParameters[$paramName]
+        $param = $__PARAMETERMAP[$paramName]
+        if ($param) {
+            if ($value -is [switch]) {
+                 if ($value.IsPresent) {
+                     if ($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                 }
+                 elseif ($param.DefaultMissingValue) { $__commandArgs += $param.DefaultMissingValue }
+            }
+            elseif ( $param.NoGap ) {
+                # if a transform is specified, use it and the construction of the values is up to the transform
+                if($param.ArgumentTransform -ne '$args') {
+                    $transform = $param.ArgumentTransform
+                    if($param.ArgumentTransformType -eq 'inline') {
+                        $transform = [scriptblock]::Create($param.ArgumentTransform)
+                    }
+                    $__commandArgs += & $transform $value
+                }
+                else {
+                    $pFmt = "{0}{1}"
+                    # quote the strings if they have spaces
+                    if($value -match "\s") { $pFmt = "{0}""{1}""" }
+                    $__commandArgs += $pFmt -f $param.OriginalName, $value
+                }
+            }
+            else {
+                if($param.OriginalName) { $__commandArgs += $param.OriginalName }
+                if($param.ArgumentTransformType -eq 'inline') {
+                   $transform = [scriptblock]::Create($param.ArgumentTransform)
+                }
+                else {
+                   $transform = $param.ArgumentTransform
+                }
+                $__commandArgs += & $transform $value
+            }
+        }
+    }
+    $__commandArgs = $__commandArgs | Where-Object {$_ -ne $null}
+    if ($__boundParameters["Debug"]){wait-debugger}
+    if ( $__boundParameters["Verbose"]) {
+         Write-Verbose -Verbose -Message "files-cli.exe"
+         $__commandArgs | Write-Verbose -Verbose
+    }
+    $__handlerInfo = $__outputHandlers[$PSCmdlet.ParameterSetName]
+    if (! $__handlerInfo ) {
+        $__handlerInfo = $__outputHandlers["Default"] # Guaranteed to be present
+    }
+    $__handler = $__handlerInfo.Handler
+    if ( $PSCmdlet.ShouldProcess("files-cli.exe $__commandArgs")) {
+    # check for the application and throw if it cannot be found
+        if ( -not (Get-Command -ErrorAction Ignore "files-cli.exe")) {
+          throw "Cannot find executable 'files-cli.exe'"
+        }
+        if ( $__handlerInfo.StreamOutput ) {
+            if ( $null -eq $__handler ) {
+                & "files-cli.exe" $__commandArgs
+            }
+            else {
+                & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError | & $__handler
+            }
+        }
+        else {
+            $result = & "files-cli.exe" $__commandArgs 2>&1| Push-CrescendoNativeError
+            & $__handler $result
+        }
+    }
+    # be sure to let the user know if there are any errors
+    Pop-CrescendoNativeError -EmitAsError
+  } # end PROCESS
+
+<#
+.SYNOPSIS
+Interact with Files.com api
+
+.DESCRIPTION
+Creates a new automation
+
+.PARAMETER name
+Name for this automation.
+
+
+.PARAMETER path
+Path on which this Automation runs.  Supports globs.
+
+
+.PARAMETER Disabled
+enable or disable the automation
+
+
+.PARAMETER destinations
+A list of String destination paths or Hash of folder_path and optional file_path.
+
+
+.PARAMETER AutomationType
+Automation type [create_folder delete_file copy_file move_file as2_send run_sync]
+
+
+.PARAMETER Interval
+How often to run this automation? One of: day, `week`, `week_end`, `month`, `month_end`, `quarter`, `quarter_end`, `year`, `year_end`
+
+
+.PARAMETER RecurringDay
+If trigger type is daily, this specifies a day number to run in one of the supported intervals: `week`, `month`, `quarter`, `year`.
+
+
+.PARAMETER Trigger
+How this automation is triggered to run. [daily custom_schedule webhook email action]
+
+
+.PARAMETER TriggerActions
+If trigger is action, this is the list of action types on which to trigger the automation. Valid actions are create, read, update, destroy, move, copy
+
+
+.PARAMETER DestinationReplaceFrom
+If set, this string in the destination path will be replaced with the value in destination_replace_to.
+
+
+.PARAMETER DestinationReplaceTo
+If set, this string will replace the value destination_replace_from in the destination filename. You can use special patterns here.
+
+
+.PARAMETER ScheduleDaysOfWeek
+If trigger is custom_schedule. A list of days of the week to run this automation. 0 is Sunday, 1 is Monday, etc. (default [])
+
+
+.PARAMETER ScheduleTimesOfDay
+If trigger is custom_schedule. A list of times of day to run this automation. 24-hour time format.
+
+
+.PARAMETER ScheduleTimeZone
+If trigger is custom_schedule. Time zone for the schedule.
+
+
+.PARAMETER fields
+Fields to include in output
+
+
+.PARAMETER apikey
+String of API key
+
+
+.PARAMETER debugOutputPath
+File Path for debug log
+
+
+.PARAMETER CheckCliVersion
+'True' or 'False' strings can be used
+
+
+.PARAMETER output
+file path to save output
+
+
+.PARAMETER profile
+Specify the profile string that was previously set
+
+
+.PARAMETER reauthentication
+Specify the password
+
 
 
 .LINK
@@ -13797,6 +14829,16 @@ function privFilesCli_UserOutPutHandler {
 function privFilesCli_DateTimeToGMTFilesFormat {
     param([datetime]$v) 
     Get-Date $v -UFormat "%Y-%m-%dT%H:%M:%S%Z:00"
+}
+function privFilesCli_ArrayToCommaSeparated {
+    param([string[]]$v) 
+    $valuestring = ($v -join '","')
+    '"["' + $valuestring + '"]"'
+}
+function privFilesCli_ArrayToCommaSeparatedInt {
+    param([int[]]$v) 
+    $valuestring = ($v -join ',')
+    '"[' + $valuestring + ']"'
 }
 function privFilesCli_BehaviorValue {
     param($v) 

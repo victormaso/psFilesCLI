@@ -9,7 +9,7 @@
       "Noun": "FilesCliAutomationLogs",
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
-        "automation-runs",
+        "automation-logs",
         "list",
         "--format=json,raw",
         "--use-pager=False"
@@ -24,33 +24,16 @@
       "ConfirmImpact": "None",
       "SupportsTransactions": false,
       "NoInvocation": false,
-      "Description": "Automation Run Logs",
+      "Description": "An AutomationLog is an audit log for monitoring and troubleshooting triggered Automation.",
       "Usage": {
         "Synopsis": "Interact with Files.com api"
       },
       "Parameters": [
         {
           "NoGap": true,
-          "Mandatory": true,
-          "OriginalName": "--id=",
-          "Name": "automationRunId",
-          "ParameterType": "int",
-          "ValueFromPipelineByPropertyName": true,
-          "Aliases": [
-            "id"
-          ],
-          "ParameterSetName": [
-            "Default",
-            "GlobalFlags"
-          ],
-          "Description": "Automation Run ID"
-        },
-        {
-          "NoGap": true,
+          "OriginalName": "--fields=",
           "Name": "fields",
-          "ParameterType": "string[]",
-          "ArgumentTransform": "privFilesCli_FieldsArrayToCommaSeparated",
-          "ArgumentTransformType": "Function",
+          "ParameterType": "string",
           "ParameterSetName": [
             "Default",
             "GlobalFlags"

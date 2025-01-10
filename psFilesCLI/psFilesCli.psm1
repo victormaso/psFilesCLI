@@ -1,7 +1,7 @@
 # Module created by Microsoft.PowerShell.Crescendo
 # Version: 1.1.0
 # Schema: https://aka.ms/PowerShell/Crescendo/Schemas/2022-06
-# Generated at: 01/10/2025 08:54:33
+# Generated at: 01/10/2025 09:56:05
 class PowerShellCustomFunctionAttribute : System.Attribute {
     [bool]$RequiresElevation
     [string]$Source
@@ -52,11 +52,7 @@ if($BoundParameters.filesapikey){$params+=@{"filesapikey"=$BoundParameters.files
 
 if ($basePath -notmatch '(\/|\\)$') { $basepath = $basepath | Split-Path } ;
 
-try{ $job=Invoke-Command -AsJob -ScriptBlock {(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }}}catch{}
-Wait-Job $job -Timeout 4
-if ($job.State -eq 'Completed') {
-    Receive-Job $job
-} else {}})]
+(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }})]
 [Alias('Source')]
 [Parameter(Position=0,ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='Default')]
 [Parameter(Position=0,ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='GlobalFlags')]
@@ -70,11 +66,7 @@ if($BoundParameters.filesapikey){$params+=@{"filesapikey"=$BoundParameters.files
 
 if ($basePath -notmatch '(\/|\\)$') { $basepath = $basepath | Split-Path } ;
 
-try{ $job=Invoke-Command -AsJob -ScriptBlock {(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }}}catch{}
-Wait-Job $job -Timeout 4
-if ($job.State -eq 'Completed') {
-    Receive-Job $job
-} else {}})]
+(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }})]
 [Parameter(Position=1,Mandatory=$true,ParameterSetName='Default')]
 [Parameter(Position=1,Mandatory=$true,ParameterSetName='GlobalFlags')]
 [string]$Destination,
@@ -2767,11 +2759,7 @@ if($BoundParameters.filesapikey){$params+=@{"filesapikey"=$BoundParameters.files
 
 if ($basePath -notmatch '(\/|\\)$') { $basepath = $basepath | Split-Path } ;
 
-try{ $job=Invoke-Command -AsJob -ScriptBlock {(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }}}catch{}
-Wait-Job $job -Timeout 4
-if ($job.State -eq 'Completed') {
-    Receive-Job $job
-} else {}})]
+(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }})]
 [Parameter(ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='Default')]
 [Parameter(ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='GlobalFlags')]
 [string]$path,
@@ -3086,11 +3074,7 @@ if($BoundParameters.filesapikey){$params+=@{"filesapikey"=$BoundParameters.files
 
 if ($basePath -notmatch '(\/|\\)$') { $basepath = $basepath | Split-Path } ;
 
-try{ $job=Invoke-Command -AsJob -ScriptBlock {(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }}}catch{}
-Wait-Job $job -Timeout 4
-if ($job.State -eq 'Completed') {
-    Receive-Job $job
-} else {}})]
+(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }})]
 [Parameter(Position=0,ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='Default')]
 [Parameter(Position=0,ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='GlobalFlags')]
 [string]$path,
@@ -8353,11 +8337,7 @@ if($BoundParameters.filesapikey){$params+=@{"filesapikey"=$BoundParameters.files
 
 if ($basePath -notmatch '(\/|\\)$') { $basepath = $basepath | Split-Path } ;
 
-try{ $job=Invoke-Command -AsJob -ScriptBlock {(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }}}catch{}
-Wait-Job $job -Timeout 4
-if ($job.State -eq 'Completed') {
-    Receive-Job $job
-} else {}})]
+(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }})]
 [Parameter(ValueFromPipelineByPropertyName=$true,ParameterSetName='Default')]
 [Parameter(ValueFromPipelineByPropertyName=$true,ParameterSetName='GlobalFlags')]
 [string]$path,
@@ -12411,11 +12391,7 @@ if($BoundParameters.filesapikey){$params+=@{"filesapikey"=$BoundParameters.files
 
 if ($basePath -notmatch '(\/|\\)$') { $basepath = $basepath | Split-Path } ;
 
-try{ $job=Invoke-Command -AsJob -ScriptBlock {(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }}}catch{}
-Wait-Job $job -Timeout 4
-if ($job.State -eq 'Completed') {
-    Receive-Job $job
-} else {}})]
+(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }})]
 [Alias('Source')]
 [Parameter(Position=0,ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='Default')]
 [Parameter(Position=0,ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='GlobalFlags')]
@@ -12429,11 +12405,7 @@ if($BoundParameters.filesapikey){$params+=@{"filesapikey"=$BoundParameters.files
 
 if ($basePath -notmatch '(\/|\\)$') { $basepath = $basepath | Split-Path } ;
 
-try{ $job=Invoke-Command -AsJob -ScriptBlock {(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }}}catch{}
-Wait-Job $job -Timeout 4
-if ($job.State -eq 'Completed') {
-    Receive-Job $job
-} else {}})]
+(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }})]
 [Parameter(Position=1,Mandatory=$true,ParameterSetName='Default')]
 [Parameter(Position=1,Mandatory=$true,ParameterSetName='GlobalFlags')]
 [string]$Destination,
@@ -13306,11 +13278,7 @@ if($BoundParameters.filesapikey){$params+=@{"filesapikey"=$BoundParameters.files
 
 if ($basePath -notmatch '(\/|\\)$') { $basepath = $basepath | Split-Path } ;
 
-try{ $job=Invoke-Command -AsJob -ScriptBlock {(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }}}catch{}
-Wait-Job $job -Timeout 4
-if ($job.State -eq 'Completed') {
-    Receive-Job $job
-} else {}})]
+(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }})]
 [Parameter(ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='Default')]
 [Parameter(ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='GlobalFlags')]
 [string]$path,
@@ -13661,11 +13629,7 @@ if($BoundParameters.filesapikey){$params+=@{"filesapikey"=$BoundParameters.files
 
 if ($basePath -notmatch '(\/|\\)$') { $basepath = $basepath | Split-Path } ;
 
-try{ $job=Invoke-Command -AsJob -ScriptBlock {(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }}}catch{}
-Wait-Job $job -Timeout 4
-if ($job.State -eq 'Completed') {
-    Receive-Job $job
-} else {}})]
+(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }})]
 [Alias('path')]
 [Parameter(Position=0,ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='Default')]
 [Parameter(Position=0,ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='GlobalFlags')]
@@ -14104,11 +14068,7 @@ if($BoundParameters.filesapikey){$params+=@{"filesapikey"=$BoundParameters.files
 
 if ($basePath -notmatch '(\/|\\)$') { $basepath = $basepath | Split-Path } ;
 
-try{ $job=Invoke-Command -AsJob -ScriptBlock {(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }}}catch{}
-Wait-Job $job -Timeout 4
-if ($job.State -eq 'Completed') {
-    Receive-Job $job
-} else {}})]
+(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }})]
 [Parameter(ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='Default')]
 [Parameter(ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='GlobalFlags')]
 [string]$path,
@@ -15496,11 +15456,7 @@ if($BoundParameters.filesapikey){$params+=@{"filesapikey"=$BoundParameters.files
 
 if ($basePath -notmatch '(\/|\\)$') { $basepath = $basepath | Split-Path } ;
 
-try{ $job=Invoke-Command -AsJob -ScriptBlock {(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }}}catch{}
-Wait-Job $job -Timeout 4
-if ($job.State -eq 'Completed') {
-    Receive-Job $job
-} else {}})]
+(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }})]
 [Parameter(Position=1,Mandatory=$true,ParameterSetName='Default')]
 [Parameter(Position=1,Mandatory=$true,ParameterSetName='GlobalFlags')]
 [string]$remotepath,
@@ -16257,11 +16213,7 @@ if($BoundParameters.filesapikey){$params+=@{"filesapikey"=$BoundParameters.files
 
 if ($basePath -notmatch '(\/|\\)$') { $basepath = $basepath | Split-Path } ;
 
-try{ $job=Invoke-Command -AsJob -ScriptBlock {(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }}}catch{}
-Wait-Job $job -Timeout 4
-if ($job.State -eq 'Completed') {
-    Receive-Job $job
-} else {}})]
+(get-FilesCliChildItem @params -recursive:$false -OnlyFolders:$true -path $basePath -ErrorAction Stop).path | foreach-object { "/$_" } | where-object { $_ -like "*$wordToComplete*" }})]
 [Alias('Source')]
 [Parameter(Position=0,ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='Default')]
 [Parameter(Position=0,ValueFromPipelineByPropertyName=$true,Mandatory=$true,ParameterSetName='GlobalFlags')]

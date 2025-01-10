@@ -7,9 +7,7 @@
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
         "files",
-        "move",
-        "--format=json,raw",
-        "--use-pager=False"
+        "move"
       ],
       "Platform": [
         "Windows",
@@ -27,20 +25,24 @@
       },
       "Parameters": [
         {
-          "OriginalName": null,
-          "Name": "Source",
+          "OriginalName": "--path",
+          "Name": "path",
           "ParameterType": "string",
           "OriginalPosition": 0,
           "Position": 0,
+          "ValueFromPipelineByPropertyName": true,
           "ParameterSetName": [
             "Default",
             "GlobalFlags"
           ],
+          "AdditionalParameterAttributes": [
+            "---CrecendoBuilder-ReplaceWith-FilesCLIChildItem_AutoComplete_string---"
+          ],
           "Aliases": [
-            "path"
+            "Source"
           ],
           "Mandatory": true,
-          "Description": "Specify the path to files.com virtual directory/file to copy"
+          "Description": "Specify the path"
         },
         {
           "NoGap": false,
@@ -49,6 +51,9 @@
           "ParameterType": "string",
           "Position": 1,
           "OriginalPosition": 1,
+          "AdditionalParameterAttributes": [
+            "---CrecendoBuilder-ReplaceWith-FilesCLIChildItem_AutoComplete_string---"
+          ],
           "ParameterSetName": [
             "Default",
             "GlobalFlags"
@@ -66,6 +71,17 @@
             "GlobalFlags"
           ],
           "Description": "Wait on response for async move with final status."
+        },
+        {
+          "NoGap": true,
+          "OriginalName": "--overwrite",
+          "Name": "Overwrite",
+          "ParameterType": "switch",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "Overwrite existing file(s) in the destination?"
         },
         {
           "NoGap": true,
@@ -91,12 +107,6 @@
           "Description": "Fields to include in output",
           "ArgumentTransform": "privFilesCli_FieldsArrayToCommaSeparated",
           "ArgumentTransformType" : "Function"
-        }
-      ],
-      "Examples": [
-        {
-          "Command": "Get-FilesCliChildItem -path /demo |Where-Object {$_.display_name -like \"*.csv\"} | New-FilesCliDownload -localpath C:\\temp\\localFilesDemoFolder",
-          "Description": "Lists out all objects in files.com /demo directory. Filters for files that are like '*csv' then downloads them"
         }
       ],
       "OriginalText": "",

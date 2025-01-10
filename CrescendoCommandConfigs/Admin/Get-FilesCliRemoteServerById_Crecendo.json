@@ -7,9 +7,7 @@
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
         "remote-servers",
-        "find",
-        "--format=json,raw",
-        "--use-pager=False"
+        "find"
       ],
       "Platform": [
         "Windows",

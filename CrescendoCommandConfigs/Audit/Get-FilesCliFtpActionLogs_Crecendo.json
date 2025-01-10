@@ -10,9 +10,7 @@
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
         "ftp-action-logs",
-        "list",
-        "--format=json,raw",
-        "--use-pager=False"
+        "list"
       ],
       "Platform": [
         "Windows",

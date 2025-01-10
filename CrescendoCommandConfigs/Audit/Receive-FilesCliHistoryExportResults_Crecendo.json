@@ -1,18 +1,14 @@
 {
   "$schema": "https://aka.ms/PowerShell/Crescendo/Schemas/2022-06",
-  "AdditionalCrescendoBuilders": [
-    "APIPaging"
-  ],
   "Commands": [
     {
-      "Verb": "Get",
-      "Noun": "FilesCliAutomationRuns",
+      "Verb": "Receive",
+      "Noun": "FilesCliHistoryExportResults",
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
-        "automation-runs",
+        "history-export-results",
         "list",
-        "--format=json,raw",
-        "--use-pager=False"
+        "--per-page=10000"
       ],
       "Platform": [
         "Windows",
@@ -24,41 +20,47 @@
       "ConfirmImpact": "None",
       "SupportsTransactions": false,
       "NoInvocation": false,
-      "Description": "Automation Runs logs",
+      "Description": "Retrieves History Export Results",
       "Usage": {
         "Synopsis": "Interact with Files.com api"
       },
       "Parameters": [
         {
           "NoGap": true,
-          "Mandatory": true,
-          "OriginalName": "--id=",
-          "Name": "automationRunId",
-          "ParameterType": "int",
+          "OriginalName": "--history-export-id=",
+          "Name": "id",
+          "ParameterType": "string",
           "ValueFromPipelineByPropertyName": true,
-          "Aliases": [
-            "id"
-          ],
           "ParameterSetName": [
             "Default",
             "GlobalFlags"
           ],
-          "Description": "Automation Run ID"
+          "Aliases": [
+            "HistoryExportID"
+          ],
+          "Mandatory": false,
+          "Description": "ID of the associated history export."
         },
         {
-          "NoGap": true,
-          "Name": "fields",
+          "OriginalName": null,
+          "Name": "Fields",
           "ParameterType": "string[]",
-          "ArgumentTransform": "privFilesCli_FieldsArrayToCommaSeparated",
-          "ArgumentTransformType": "Function",
           "ParameterSetName": [
             "Default",
             "GlobalFlags"
           ],
-          "Description": "comma seperated fields. example   path,type"
+          "Description": "Fields to include in output",
+          "ArgumentTransform": "privFilesCli_FieldsArrayToCommaSeparated",
+          "ArgumentTransformType" : "Function"
         }
+
       ],
-      "Examples": [],
+      "Examples": [
+        {
+          "Command": "Get-FilesCliItem -path /Role/ITOps/Data/test -filescliprofile dev |New-FilesCliHistoryExport -startat (get-date).adddays(-4) | Wait-FilesCliHistoryExport | Receive-FilesCliHistoryExportResults",
+          "Description": "For a specific path in files.com request a file history export for the past 4 days, wait for the job to finish, then retrieve the audit"
+    }
+  ],
       "OriginalText": "",
       "HelpLinks": [
         "https://www.files.com/docs/integrations/command-line-interface-cli-app"

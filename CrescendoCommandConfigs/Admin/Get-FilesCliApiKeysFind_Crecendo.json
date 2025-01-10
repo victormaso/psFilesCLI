@@ -7,9 +7,7 @@
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
         "api-keys",
-        "find",
-        "--format=json,raw",
-        "--use-pager=False"
+        "find"
       ],
       "Platform": [
         "Windows",

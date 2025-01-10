@@ -1,5 +1,8 @@
 {
   "$schema": "https://aka.ms/PowerShell/Crescendo/Schemas/2022-06",
+  "AdditionalCrescendoBuilders": [
+    "APIPaging"
+  ],
   "Commands": [
     {
       "Verb": "Get",
@@ -7,9 +10,7 @@
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
         "automation-runs",
-        "list",
-        "--format=json,raw",
-        "--use-pager=False"
+        "list"
       ],
       "Platform": [
         "Windows",
@@ -34,7 +35,8 @@
           "ParameterType": "int",
           "ValueFromPipelineByPropertyName": true,
           "Aliases": [
-            "automation_id"
+            "automation_id",
+            "id"
           ],
           "ParameterType": "int",
           "ParameterSetName": [

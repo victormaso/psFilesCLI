@@ -7,9 +7,7 @@
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
         "users",
-        "find",
-        "--format=json,raw",
-        "--use-pager=False"
+        "find"
       ],
       "Platform": [
         "Windows",
@@ -36,7 +34,8 @@
           "Mandatory": true,
           "ValueFromPipelineByPropertyName": true,
           "Aliases": [
-            "id"
+            "id",
+            "userid"
           ],
           "ParameterSetName": [
             "Default",
@@ -56,11 +55,7 @@
           ],
           "Description": "Fields to include in output",
           "ArgumentTransform": "privFilesCli_FieldsArrayToCommaSeparated",
-          "ArgumentTransformType" : "Function",
-          "DefaultValue": "id,name,email,disabled,group_ids,last_login_at,last_active_at,password_expired",
-          "AdditionalParameterAttributes":[
-            "[ValidateSet('AllFields','active_2fa','admin_group_ids','allowed_ips','announcements_read','api_keys_count','attachments_permission','authenticate_until','authentication_method','avatar_delete','avatar_file','avatar_url','billing_permission','bypass_inactive_disable','bypass_site_allowed_ips','change_password','change_password_confirmation','company','created_at','dav_permission','days_remaining_until_password_expire','disabled','email','externally_managed','first_login_at','ftp_permission','grant_permission','group_id','group_ids','header_text','id','imported_password_hash','language','last_active_at','last_api_use_at','last_dav_login_at','last_desktop_login_at','last_ftp_login_at','last_login_at','last_protocol_cipher','last_restapi_login_at','last_sftp_login_at','last_web_login_at','lockout_expires','name','notes','notification_daily_send_time','office_integration_enabled','password','password_confirmation','password_expire_at','password_expired','password_set_at','password_validity_days','public_keys_count','receive_admin_alerts','require_2fa','require_password_change','restapi_permission','self_managed','sftp_permission','site_admin','skip_welcome_screen','ssl_required','sso_strategy_id','subscribe_to_newsletter','time_zone','type_of_2fa','user_root','username')]"
-          ]
+          "ArgumentTransformType" : "Function"
         }
       ],
       "Examples": [],
@@ -72,7 +67,7 @@
         {
           "ParameterSetName": "Default",
           "HandlerType": "Function",
-          "Handler": "privFilesCli_UserOutPutHandler"
+          "Handler": "privFilesCli_CommonJSONtoPSobjectHandler"
         }
       ]
     }

@@ -7,9 +7,7 @@
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
         "external-events",
-        "list",
-        "--format=json,raw",
-        "--use-pager=False"
+        "list"
       ],
       "Platform": [
         "Windows",

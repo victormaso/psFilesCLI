@@ -7,9 +7,7 @@
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
         "api-keys",
-        "list",
-        "--format=json,raw",
-        "--use-pager=False"
+        "list"
       ],
       "Platform": [
         "Windows",
@@ -34,6 +32,7 @@
           "ParameterSetName": [
             "userid"
           ],
+          "ValueFromPipelineByPropertyName": true,
           "Aliases": [
             "id"
           ],

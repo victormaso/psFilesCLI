@@ -6,9 +6,7 @@
       "Noun": "FilesCliDownload",
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
-        "download",
-        "--format=json,raw",
-        "--use-pager=False"
+        "download"
       ],
       "Platform": [
         "Windows",
@@ -39,6 +37,9 @@
           "Aliases": [
             "path"
           ],
+          "AdditionalParameterAttributes": [
+            "---CrecendoBuilder-ReplaceWith-FilesCLIChildItem_AutoComplete_string---"
+          ],
           "Mandatory": true,
           "Description": "Specify the path to files.com virtual directory/file to download"
         },
@@ -66,7 +67,6 @@
           "Description": "Fields to include in output",
           "ArgumentTransform": "privFilesCli_FieldsArrayToCommaSeparated",
           "ArgumentTransformType" : "Function",
-          "DefaultValue": "attempts,error,local_path,remote_path,size_bytes,status,started_at,transferred_bytes",
           "AdditionalParameterAttributes":[
             "[ValidateSet('AllFields','action','attempts','completed_at','crc32','created_at','display_name','download_uri','error','is_locked','length','local_path','md5','mime_type','mkdir_parents','mtime','part','parts','path','permissions','preview','preview_id','priority_color','provided_mtime','ref','region','remote_path','restart','size','size_bytes','started_at','status','structure','subfolders_locked?','transferred_bytes','type','with_rename')]"
           ]

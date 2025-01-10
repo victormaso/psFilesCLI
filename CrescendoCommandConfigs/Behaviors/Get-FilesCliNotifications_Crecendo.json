@@ -7,9 +7,7 @@
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
         "notifications",
-        "list",
-        "--format=json,raw",
-        "--use-pager=False"
+        "list"
       ],
       "Platform": [
         "Windows",
@@ -27,14 +25,16 @@
       },
       "Parameters": [
         {
-          "NoGap": true,
-          "OriginalName": "--path=",
+          "OriginalName": "--path",
           "Name": "path",
           "ParameterType": "string",
           "ValueFromPipelineByPropertyName": true,
           "ParameterSetName": [
             "Default",
             "GlobalFlags"
+          ],
+          "AdditionalParameterAttributes": [
+            "---CrecendoBuilder-ReplaceWith-FilesCLIChildItem_AutoComplete_string---"
           ],
           "Description": "Specify the folder path"
         },

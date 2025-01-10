@@ -10,9 +10,7 @@
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
         "history-exports",
-        "create",
-        "--format=json,raw",
-        "--use-pager=False"
+        "create"
       ],
       "Platform": [
         "Windows",
@@ -79,9 +77,13 @@
           "OriginalName": "--query-folder",
           "Name": "QueryFolder",
           "ParameterType": "string",
+          "ValueFromPipelineByPropertyName": true,
           "ParameterSetName": [
             "Default",
             "GlobalFlags"
+          ],
+          "Aliases": [
+            "path"
           ],
           "Description": "Return results that are file actions related to files or folders inside this folder path."
         },

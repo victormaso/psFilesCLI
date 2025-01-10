@@ -2,12 +2,12 @@
   "$schema": "https://aka.ms/PowerShell/Crescendo/Schemas/2022-06",
   "Commands": [
     {
-      "Verb": "Get",
-      "Noun": "FilesCliBehaviors",
+      "Verb": "Wait",
+      "Noun": "FilesCliHistoryExport",
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
-        "behaviors",
-        "list"
+        "history-exports",
+        "find"
       ],
       "Platform": [
         "Windows",
@@ -19,26 +19,30 @@
       "ConfirmImpact": "None",
       "SupportsTransactions": false,
       "NoInvocation": false,
-      "Description": "List behaviors in the site",
+      "Description": "Loops until the exportID is marked as complete before returning the object",
       "Usage": {
         "Synopsis": "Interact with Files.com api"
       },
       "Parameters": [
         {
           "NoGap": true,
-          "OriginalName": "--behavior=",
-          "Name": "behavior",
+          "OriginalName": "--id=",
+          "Name": "id",
           "ParameterType": "string",
           "ValueFromPipelineByPropertyName": true,
           "ParameterSetName": [
             "Default",
             "GlobalFlags"
           ],
-          "Description": "Specify behavior type"
+          "Aliases": [
+            "HistoryExportID"
+          ],
+          "Mandatory": false,
+          "Description": "History Export ID"
         },
         {
           "OriginalName": null,
-          "Name": "fields",
+          "Name": "Fields",
           "ParameterType": "string[]",
           "ParameterSetName": [
             "Default",
@@ -46,14 +50,15 @@
           ],
           "Description": "Fields to include in output",
           "ArgumentTransform": "privFilesCli_FieldsArrayToCommaSeparated",
-          "ArgumentTransformType" : "Function",
-          "DefaultValue": "attachment_delete,attachment_file,attachment_url,behavior,description,id,name,path,value",
-          "AdditionalParameterAttributes":[
-            "[ValidateSet('AllFields','attachment_delete','attachment_file','attachment_url','behavior','description','id','name','path','value')]"
-          ]
+          "ArgumentTransformType": "Function"
         }
       ],
-      "Examples": [],
+      "Examples": [
+        {
+          "Command": "Get-FilesCliItem -path /Role/ITOps/Data/test -filescliprofile dev |New-FilesCliHistoryExport -startat (get-date).adddays(-4) | Wait-FilesCliHistoryExport | Receive-FilesCliHistoryExportResults",
+          "Description": "For a specific path in files.com request a file history export for the past 4 days, wait for the job to finish, then retrieve the audit"
+        }
+      ],
       "OriginalText": "",
       "HelpLinks": [
         "https://www.files.com/docs/integrations/command-line-interface-cli-app"
@@ -62,7 +67,7 @@
         {
           "ParameterSetName": "Default",
           "HandlerType": "Function",
-          "Handler": "privFilesCli_CommonJSONtoPSobjectHandler"
+          "Handler": "privFilesCli_WaitHistoryJobPSobjectHandler"
         }
       ]
     }

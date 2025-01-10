@@ -4,7 +4,7 @@
     RootModule = 'psFilesCli.psm1'
     
     # Version number of this module.
-    ModuleVersion = '0.1.3'
+    ModuleVersion = '1.0.0'
     
     # Supported PSEditions
     # CompatiblePSEditions = @()
@@ -74,18 +74,21 @@ FunctionsToExport = 'Copy-FilesCliItem', 'Get-FilesCliApiKeysFind',
                'Get-FilesCliHistoriesList', 'Get-FilesCliHistoriesListFile', 
                'Get-FilesCliHistoriesListFolder', 
                'Get-FilesCliHistoriesListLogins', 'Get-FilesCliHistoryExport', 
-               'Get-FilesCliHistoryExportResults', 'Get-FilesCliIPAddressesList', 
-               'Get-FilesCliItem', 'Get-FilesCliNotifications', 
-               'Get-FilesCliPermissionList', 'Get-FilesCliRemoteServerById', 
+               'Get-FilesCliIPAddressesList', 'Get-FilesCliItem', 
+               'Get-FilesCliNotifications', 'Get-FilesCliOutboundConnectionLogs', 
+               'Get-FilesCliPermissionListByGroup', 
+               'Get-FilesCliPermissionListByPath', 
+               'Get-FilesCliPermissionListByUser', 'Get-FilesCliRemoteServerById', 
                'Get-FilesCliRemoteServersList', 'Get-FilesCliSettingsChanges', 
                'Get-FilesCliSftpActionLogs', 'Get-FilesCliSyncLogs', 
                'Get-FilesCliUsageDailySnapshots', 'Get-FilesCliUser', 
                'Get-FilesCliUserCipherUses', 'Get-FilesCliUsersList', 
-               'Move-FilesCliItem', 'New-FilesCliBehavior', 'New-FilesCliDownload', 
-               'New-FilesCliFolder', 'New-FilesCliHistoryExport', 
-               'New-FilesCliSyncPull', 'New-FilesCliUpload', 'Remove-FilesCliItem', 
-               'Set-FilesCliConfig', 'Set-FilesCliConfig', 'New-FilesCliAutomation',
-               'Get-FilesCliAutomationRuns','Get-FilesCliOutboundConnectionLogs'
+               'Move-FilesCliItem', 'New-FilesCliAutomation', 'New-FilesCliBehavior', 
+               'New-FilesCliDownload', 'New-FilesCliFolder', 
+               'New-FilesCliHistoryExport', 'New-FilesCliSyncPull', 
+               'New-FilesCliUpload', 'Receive-FilesCliHistoryExportResults', 
+               'Remove-FilesCliItem', 'Reset-FilesCliConfig', 'Set-FilesCliConfig', 
+               'Wait-FilesCliHistoryExport'
 
 # Cmdlets to export from this module, for best performance, do not use wildcards and do not delete the entry, use an empty array if there are no cmdlets to export.
 CmdletsToExport = @()

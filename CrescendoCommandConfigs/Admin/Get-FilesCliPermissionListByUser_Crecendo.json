@@ -3,14 +3,11 @@
   "Commands": [
     {
       "Verb": "Get",
-      "Noun": "FilesCliHistoryExportResults",
+      "Noun": "FilesCliPermissionListByUser",
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
-        "history-export-results",
-        "list",
-        "--format=json,raw",
-        "--per-page=10000",
-        "--use-pager=False"
+        "permissions",
+        "list"
       ],
       "Platform": [
         "Windows",
@@ -22,36 +19,50 @@
       "ConfirmImpact": "None",
       "SupportsTransactions": false,
       "NoInvocation": false,
-      "Description": "List History Export Results",
+      "Description": "lists the Permissions in the site",
       "Usage": {
         "Synopsis": "Interact with Files.com api"
       },
       "Parameters": [
         {
           "NoGap": true,
-          "OriginalName": "--history-export-id=",
-          "Name": "HistoryExportID",
+          "OriginalName": "--user-id=",
+          "Name": "UserID",
+          "ParameterType": "string",
+          "ValueFromPipelineByPropertyName": true,
+          "Aliases": [
+            "id"
+          ],
+          "ParameterSetName": [
+            "userid"
+          ],
+          "Description": "If provided, will scope permissions to this user."
+        },
+        {
+          "NoGap": true,
+          "OriginalName": "--include-groups=False",
+          "Name": "DoNotRecurseGroups",
+          "ParameterType": "switch",
+          "ParameterSetName": [
+            "userid",
+            "groupid"
+          ],
+          "Description": "If searching by user or group, do not include user's permissions that are inherited from its groups"
+        },
+        {
+          "NoGap": true,
+          "OriginalName": "--fields=",
+          "Name": "fields",
           "ParameterType": "string",
           "ParameterSetName": [
             "Default",
-            "GlobalFlags"
+            "GlobalFlags",
+            "path",
+            "userid",
+            "groupid"
           ],
-          "Mandatory": false,
-          "Description": "ID of the associated history export."
-        },
-        {
-          "OriginalName": null,
-          "Name": "Fields",
-          "ParameterType": "string[]",
-          "ParameterSetName": [
-            "Default",
-            "GlobalFlags"
-          ],
-          "Description": "Fields to include in output",
-          "ArgumentTransform": "privFilesCli_FieldsArrayToCommaSeparated",
-          "ArgumentTransformType" : "Function"
+          "Description": "comma seperated fields. example   path,type"
         }
-
       ],
       "Examples": [],
       "OriginalText": "",

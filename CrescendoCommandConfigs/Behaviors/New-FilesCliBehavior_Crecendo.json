@@ -7,9 +7,7 @@
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
         "behaviors",
-        "create",
-        "--format=json,raw",
-        "--use-pager=False"
+        "create"
       ],
       "Platform": [
         "Windows",
@@ -27,13 +25,16 @@
       },
       "Parameters": [
         {
-          "NoGap": true,
-          "OriginalName": "--path=",
+          "OriginalName": "--path",
           "Name": "path",
           "ParameterType": "string",
+          "ValueFromPipelineByPropertyName": true,
           "ParameterSetName": [
             "Default",
             "GlobalFlags"
+          ],
+          "AdditionalParameterAttributes": [
+            "---CrecendoBuilder-ReplaceWith-FilesCLIChildItem_AutoComplete_string---"
           ],
           "Mandatory": true,
           "Description": "Specify the folder path"

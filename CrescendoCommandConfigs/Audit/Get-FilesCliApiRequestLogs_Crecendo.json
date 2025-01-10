@@ -10,9 +10,7 @@
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
         "api-request-logs",
-        "list",
-        "--format=json,raw",
-        "--use-pager=False"
+        "list"
       ],
       "Platform": [
         "Windows",

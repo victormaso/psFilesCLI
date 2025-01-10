@@ -7,9 +7,7 @@
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
         "ip-addresses",
-        "list",
-        "--format=json,raw",
-        "--use-pager=False"
+        "list"
       ],
       "Platform": [
         "Windows",
@@ -48,7 +46,7 @@
         {
           "ParameterSetName": "Default",
           "HandlerType": "Function",
-          "Handler": "privFilesCli_UserOutPutHandler"
+          "Handler": "privFilesCli_CommonJSONtoPSobjectHandler"
         }
       ]
     }

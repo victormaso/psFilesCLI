@@ -10,9 +10,7 @@
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
         "histories",
-        "list-for-file",
-        "--format=json,raw",
-        "--use-pager=False"
+        "list-for-file"
       ],
       "Platform": [
         "Windows",
@@ -30,8 +28,7 @@
       },
       "Parameters": [
         {
-          "NoGap": true,
-          "OriginalName": "--path=",
+          "OriginalName": "--path",
           "Name": "path",
           "Position": 0,
           "ParameterType": "string",

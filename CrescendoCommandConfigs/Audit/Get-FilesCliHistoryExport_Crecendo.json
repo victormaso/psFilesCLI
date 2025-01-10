@@ -7,9 +7,7 @@
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
         "history-exports",
-        "find",
-        "--format=json,raw",
-        "--use-pager=False"
+        "find"
       ],
       "Platform": [
         "Windows",
@@ -29,11 +27,14 @@
         {
           "NoGap": true,
           "OriginalName": "--id=",
-          "Name": "HistoryExportID",
+          "Name": "id",
           "ParameterType": "string",
           "ParameterSetName": [
             "Default",
             "GlobalFlags"
+          ],
+          "Aliases": [
+            "HistoryExportID"
           ],
           "Mandatory": false,
           "Description": "History Export ID"

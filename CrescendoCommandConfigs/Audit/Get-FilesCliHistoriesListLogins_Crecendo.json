@@ -10,9 +10,7 @@
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
         "histories",
-        "list-logins",
-        "--format=json,raw",
-        "--use-pager=False"
+        "list-logins"
       ],
       "Platform": [
         "Windows",

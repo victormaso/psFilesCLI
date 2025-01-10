@@ -28,13 +28,6 @@
       "OriginalText": "",
       "HelpLinks": [
         "https://www.files.com/docs/integrations/command-line-interface-cli-app"
-      ],
-      "OutputHandlers": [
-        {
-          "ParameterSetName": "Default",
-          "HandlerType": "Function",
-          "Handler": "privFilesCli_CommonJSONtoPSobjectHandler"
-        }
       ]
     }
   ]

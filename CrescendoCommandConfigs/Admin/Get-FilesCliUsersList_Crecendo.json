@@ -7,9 +7,7 @@
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
         "users",
-        "list",
-        "--format=json,raw",
-        "--use-pager=False"
+        "list"
       ],
       "Platform": [
         "Windows",
@@ -58,7 +56,7 @@
         {
           "ParameterSetName": "Default",
           "HandlerType": "Function",
-          "Handler": "privFilesCli_UserOutPutHandler"
+          "Handler": "privFilesCli_CommonJSONtoPSobjectHandler"
         }
       ]
     }

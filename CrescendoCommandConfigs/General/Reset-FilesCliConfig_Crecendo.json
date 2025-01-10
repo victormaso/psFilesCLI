@@ -2,7 +2,7 @@
   "$schema": "https://aka.ms/PowerShell/Crescendo/Schemas/2022-06",
   "Commands": [
     {
-      "Verb": "Set",
+      "Verb": "Reset",
       "Noun": "FilesCliConfig",
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [

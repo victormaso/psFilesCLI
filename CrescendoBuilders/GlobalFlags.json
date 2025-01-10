@@ -4,12 +4,15 @@
         {
             "Parameters": [
                 {
-                    "NoGap": true,
-                    "OriginalName": "--api-key=",
-                    "Name": "apikey",
-                    "ParameterType": "string",
-                    "OriginalPosition": 3,
-                    "Description": "String of API key"
+                    "OriginalName": "--api-key",
+                    "Name": "filesapikey",
+                    "Aliases": [
+                        "apikey"
+                    ],
+                    "Description": "filescli Apikey. Can pass in secure string or plain text.",
+                    "ArgumentTransform": "privFilesCli_ApiSecureStringToText",
+                    "ArgumentTransformType": "Function",
+                    "ValueFromPipelineByPropertyName": true
                 },
                 {
                     "NoGap": true,
@@ -17,43 +20,39 @@
                     "Name": "debugOutputPath",
                     "DefaultMissingValue": "",
                     "ParameterType": "string",
-                    "OriginalPosition": 3,
-                    "Description": "File Path for debug log"
+                    "Description": "File Path for debug log. specify STDOUT to log directly to the screen"
                 },
                 {
-                    "NoGap": true,
                     "OriginalName": "--ignore-version-check=False",
                     "DefaultMissingValue": "--ignore-version-check=True",
                     "Name": "CheckCliVersion",
                     "ParameterType": "switch",
-                    "OriginalPosition": 3,
                     "Description": "'True' or 'False' strings can be used"
-                    
                 },
                 {
                     "NoGap": true,
+                    "Position": 2147483647,
                     "OriginalName": "--output=",
                     "Name": "output",
                     "ParameterType": "string",
-                    "OriginalPosition": 3,
                     "Description": "file path to save output"
-                    
                 },
                 {
-                    "NoGap": true,
-                    "OriginalName": "--profile=",
-                    "Name": "profile",
+                    "Position": 2147483647,
+                    "OriginalName": "--profile",
+                    "Name": "filescliprofile",
                     "ParameterType": "string",
-                    "OriginalPosition": 3,
+                    "Aliases": [
+                        "profile"
+                    ],
+                    "ValueFromPipelineByPropertyName": true,
                     "Description": "Specify the profile string that was previously set"
                 },
                 {
-                    "NoGap": true,
-                    "OriginalName": "--reauthentication=",
+                    "OriginalName": "--reauthentication",
                     "Name": "reauthentication",
                     "ParameterType": "string",
-                    "OriginalPosition": 3,
-                    "Description": "Specify the password"
+                    "Description": "Specify the password if using session for commands that require reauthentication (not tested)"
                 }
             ]
         }

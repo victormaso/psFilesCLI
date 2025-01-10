@@ -1,15 +1,12 @@
 {
   "$schema": "https://aka.ms/PowerShell/Crescendo/Schemas/2022-06",
-  "AdditionalCrescendoBuilders": [
-    "APIPaging"
-  ],
   "Commands": [
     {
       "Verb": "Get",
-      "Noun": "FilesCliEmailIncomingMessages",
+      "Noun": "FilesCliPermissionListByPath",
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
-        "email-incoming-messages",
+        "permissions",
         "list"
       ],
       "Platform": [
@@ -22,11 +19,24 @@
       "ConfirmImpact": "None",
       "SupportsTransactions": false,
       "NoInvocation": false,
-      "Description": "shows Api request logs",
+      "Description": "lists the Permissions in the site",
       "Usage": {
         "Synopsis": "Interact with Files.com api"
       },
       "Parameters": [
+        {
+          "OriginalName": "--path",
+          "Name": "Path",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "path"
+          ],
+          "ValueFromPipelineByPropertyName": true,
+          "AdditionalParameterAttributes":[
+            "[ArgumentCompleter ({ param ( $commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters )  $basePath='/' + ($wordtocomplete -replace '^(\\/|\\\\)',''); if($basePath -notmatch '(\\/|\\\\)$'){$basepath=$basepath |Split-Path} ; (get-FilesCliChildItem @fakeBoundParameters -recursive:$false -path $basePath).path|foreach-object{\"/$_\"} |where-object {$_ -like \"*$wordToComplete*\"}})]"
+          ],
+          "Description": "Permission path.  If provided, will scope all permissions(including upward) to this path."
+        },
         {
           "NoGap": true,
           "OriginalName": "--fields=",
@@ -34,7 +44,10 @@
           "ParameterType": "string",
           "ParameterSetName": [
             "Default",
-            "GlobalFlags"
+            "GlobalFlags",
+            "path",
+            "userid",
+            "groupid"
           ],
           "Description": "comma seperated fields. example   path,type"
         }

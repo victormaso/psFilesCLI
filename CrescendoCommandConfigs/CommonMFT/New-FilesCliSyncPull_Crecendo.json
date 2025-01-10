@@ -7,9 +7,7 @@
         "OriginalName": "files-cli.exe",
         "OriginalCommandElements": [
           "sync",
-          "pull",
-          "--format=json,raw",
-          "--use-pager=False"
+          "pull"
         ],
         "Platform": [
           "Windows",
@@ -27,8 +25,7 @@
         },
         "Parameters": [
             {
-              "NoGap": true,
-                "OriginalName": "--local-path=",
+                "OriginalName": "--local-path",
                 "Name": "LocalPath",
                 "ParameterType": "string",
                 "OriginalPosition": 0,
@@ -41,8 +38,7 @@
                 "Description": "{local path}"
               },
             {
-            "NoGap": true,
-            "OriginalName": "--remote-path=",
+            "OriginalName": "--remote-path",
             "Name": "RemotePath",
             "ParameterType": "string",
             "Position": 1,

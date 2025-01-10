@@ -6,9 +6,7 @@
       "Noun": "FilesCliUpload",
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
-        "upload",
-        "--format=json,raw",
-        "--use-pager=False"
+        "upload"
       ],
       "Platform": [
         "Windows",
@@ -27,7 +25,7 @@
       "Parameters": [
         {
           "OriginalName": null,
-          "Name": "path",
+          "Name": "localpath",
           "ParameterType": "string",
           "Position": 0,
           "ValueFromPipelineByPropertyName": true,
@@ -38,8 +36,8 @@
           "OriginalPosition": 0,
           "Aliases": [
             "source-path",
-            "localpath",
-            "FullName"
+            "FullName",
+            "path"
           ],
           "Mandatory": true,
           "Description": "Specify the path to the local file to upload"
@@ -54,8 +52,22 @@
             "Default",
             "GlobalFlags"
           ],
+          "Aliases": [],
+          "AdditionalParameterAttributes": [
+            "---CrecendoBuilder-ReplaceWith-FilesCLIChildItem_AutoComplete_string---"
+          ],
           "Mandatory": true,
           "Description": "Specify the path to files.com virtual directory"
+        },
+        {
+          "OriginalName": "--include",
+          "Name": "include",
+          "ParameterType": "string",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "include file by pattern. example -include='*.txt,*.md'. See https://git-scm.com/docs/gitignore#_pattern_format"
         },
         {
           "OriginalName": null,
@@ -67,15 +79,13 @@
           ],
           "Description": "Fields to include in output",
           "ArgumentTransform": "privFilesCli_FieldsArrayToCommaSeparated",
-          "ArgumentTransformType" : "Function",
-          "DefaultValue": "attempts,error,local_path,remote_path,size_bytes,status,started_at,transferred_bytes",
-          "AdditionalParameterAttributes":[
+          "ArgumentTransformType": "Function",
+          "AdditionalParameterAttributes": [
             "[ValidateSet('AllFields','action','attempts','completed_at','crc32','created_at','display_name','download_uri','error','is_locked','length','local_path','md5','mime_type','mkdir_parents','mtime','part','parts','path','permissions','preview','preview_id','priority_color','provided_mtime','ref','region','remote_path','restart','size','size_bytes','started_at','status','structure','subfolders_locked?','transferred_bytes','type','with_rename')]"
           ]
         },
         {
-          "NoGap": true,
-          "OriginalName": "--concurrent-connection-limit=",
+          "OriginalName": "--concurrent-connection-limit",
           "Name": "concurrentconnectionlimit",
           "ParameterType": "int",
           "ParameterSetName": [
@@ -85,8 +95,7 @@
           "Description": "(default 75)"
         },
         {
-          "NoGap": true,
-          "OriginalName": "--retry-count=",
+          "OriginalName": "--retry-count",
           "Name": "retrycount",
           "ParameterType": "int",
           "ParameterSetName": [
@@ -96,8 +105,7 @@
           "Description": "On transfer failure retry number of times. (default 2)"
         },
         {
-          "NoGap": true,
-          "OriginalName": "--ignore=",
+          "OriginalName": "--ignore",
           "Name": "ignore",
           "ParameterType": "string",
           "ParameterSetName": [
@@ -105,6 +113,28 @@
             "GlobalFlags"
           ],
           "Description": "ignore files. See https://git-scm.com/docs/gitignore#_pattern_format"
+        },
+        {
+          "NoGap": true,
+          "OriginalName": "--no-overwrite",
+          "Name": "noOverwrite",
+          "ParameterType": "switch",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "Skip files that exist on the destination."
+        },
+        {
+          "NoGap": true,
+          "OriginalName": "--dry-run",
+          "Name": "dryrun",
+          "ParameterType": "switch",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "Index files and compare with destination but don't transfer files."
         },
         {
           "NoGap": true,
@@ -126,7 +156,18 @@
             "Default",
             "GlobalFlags"
           ],
-          "Description": "Only upload files with a more recent modified date"
+          "Description": "Upload only files that have a different size than those on the remote"
+        },
+        {
+          "NoGap": true,
+          "OriginalName": "--times",
+          "Name": "times",
+          "ParameterType": "switch",
+          "ParameterSetName": [
+            "Default",
+            "GlobalFlags"
+          ],
+          "Description": "Uploaded files to include the original modification time (Limited to native files.com storage) (default true)"
         }
       ],
       "Examples": [],

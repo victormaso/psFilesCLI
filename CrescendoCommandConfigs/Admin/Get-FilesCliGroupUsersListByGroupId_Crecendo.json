@@ -7,9 +7,7 @@
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
         "group-users",
-        "list",
-        "--format=json,raw",
-        "--use-pager=False"
+        "list"
       ],
       "Platform": [
         "Windows",
@@ -42,7 +40,7 @@
             "Default",
             "GlobalFlags"
           ],
-          "Description": "Group ID.  If provided, will return group_users of this group"
+          "Description": "Group ID.  If provided, will return user ids for this group"
         },
         {
           "OriginalName": null,
@@ -72,7 +70,7 @@
         {
           "ParameterSetName": "Default",
           "HandlerType": "Function",
-          "Handler": "privFilesCli_UserOutPutHandler"
+          "Handler": "privFilesCli_CommonJSONtoPSobjectHandler"
         }
       ]
     }

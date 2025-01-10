@@ -7,9 +7,7 @@
       "OriginalName": "files-cli.exe",
       "OriginalCommandElements": [
         "files",
-        "delete",
-        "--format=json,raw",
-        "--use-pager=False"
+        "delete"
       ],
       "Platform": [
         "Windows",
@@ -21,21 +19,27 @@
       "ConfirmImpact": "None",
       "SupportsTransactions": false,
       "NoInvocation": false,
-      "Description": "get detail on a folder or file",
+      "Description": "Deletes files and/or folders if recurse is used",
       "Usage": {
         "Synopsis": "Interact with Files.com api"
       },
       "Parameters": [
         {
-          "OriginalName": null,
-          "OriginalPosition": 0,
-          "Position": 0,
+          "OriginalName": "--path",
           "Name": "path",
           "ParameterType": "string",
+          "OriginalPosition": 0,
+          "Position": 0,
           "ValueFromPipelineByPropertyName": true,
           "ParameterSetName": [
             "Default",
             "GlobalFlags"
+          ],
+          "Aliases": [
+            "Source"
+          ],
+          "AdditionalParameterAttributes": [
+            "---CrecendoBuilder-ReplaceWith-FilesCLIChildItem_AutoComplete_string---"
           ],
           "Mandatory": true,
           "Description": "Specify the path"
@@ -64,7 +68,6 @@
           "Description": "Fields to include in output",
           "ArgumentTransform": "privFilesCli_FieldsArrayToCommaSeparated",
           "ArgumentTransformType" : "Function",
-          "DefaultValue": "display_name,created_at,mtime,path,permissions,type,size",
           "AdditionalParameterAttributes":[
             "[ValidateSet('AllFields','action','created_at','crc32','display_name','download_uri','is_locked','length','md5','mime_type','mkdir_parents','mtime','part','parts','path','permissions','preview','preview_id','priority_color','provided_mtime','ref','region','restart','structure','subfolders_locked?','type','with_rename')]"
           ]

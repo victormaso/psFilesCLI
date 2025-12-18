@@ -53,6 +53,13 @@
                     "Name": "reauthentication",
                     "ParameterType": "string",
                     "Description": "Specify the password if using session for commands that require reauthentication (not tested)"
+                },
+                {
+                    "OriginalName": "---non-interactive=False",
+                    "DefaultMissingValue": "--non-interactive=True",
+                    "Name": "NonInteractiveDisable",
+                    "ParameterType": "switch",
+                    "Description": "Will reenable interactive Prompts. This is not recommended for use in psFilesCli as errors like missing login information will prompt for credentials but will appear to cause the command to hang."
                 }
             ]
         }
